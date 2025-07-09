@@ -381,8 +381,9 @@ class ObserverWindow:
                 # Process game event
                 await self._process_game_event(game_event)
                 
-        except Exception as e:
-            self.root.after(0, lambda: self._on_connection_error(str(e)))
+        except Exception as error:
+            error_msg = str(error)
+            self.root.after(0, lambda: self._on_connection_error(error_msg))
             
     async def _process_game_event(self, event: Dict[str, Any]):
         """Process incoming game event"""

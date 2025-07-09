@@ -393,8 +393,9 @@ class MainWindow:
             # Update UI on main thread
             self.root.after(0, self._on_game_started)
             
-        except Exception as e:
-            self.root.after(0, lambda: self._on_game_error(str(e)))
+        except Exception as error:
+            error_msg = str(error)
+            self.root.after(0, lambda: self._on_game_error(error_msg))
             
     def _on_game_started(self):
         """Called when game successfully starts"""

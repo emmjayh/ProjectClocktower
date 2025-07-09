@@ -10,6 +10,29 @@ import shutil
 from pathlib import Path
 import json
 
+# Fix Windows encoding issues
+if sys.platform.startswith('win'):
+    try:
+        os.system('chcp 65001 > nul')
+        os.environ['PYTHONIOENCODING'] = 'utf-8'
+    except Exception:
+        pass
+
+def safe_print(text):
+    """Safely print text on Windows"""
+    fallback = (text.replace('🏗️', '[BUILD]')
+                   .replace('✅', '[OK]')
+                   .replace('❌', '[ERROR]')
+                   .replace('📦', '[PACKAGE]')
+                   .replace('🔨', '[COMPILE]')
+                   .replace('✓', '[OK]')
+                   .replace('⚠️', '[WARNING]')
+                   .replace('💡', '[INFO]'))
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        print(fallback)
+
 class WindowsBuilder:
     """Builds Windows executable package"""
     
@@ -20,7 +43,7 @@ class WindowsBuilder:
         
     def build_executable(self):
         """Build standalone Windows executable"""
-        print("🏗️ Building Windows executable...")
+        safe_print("🏗️ Building Windows executable...")
         
         try:
             # Install build dependencies
@@ -38,16 +61,16 @@ class WindowsBuilder:
             # Create installer
             self._create_installer()
             
-            print("✅ Windows build complete!")
-            print(f"📦 Executable: {self.dist_dir / 'BloodClockTowerAI.exe'}")
+            safe_print("✅ Windows build complete!")
+            safe_print(f"📦 Executable: {self.dist_dir / 'BloodClockTowerAI.exe'}")
             
         except Exception as e:
-            print(f"❌ Build failed: {e}")
+            safe_print(f"❌ Build failed: {e}")
             sys.exit(1)
             
     def _install_build_deps(self):
         """Install build dependencies"""
-        print("📦 Installing build dependencies...")
+        safe_print("📦 Installing build dependencies...")
         
         deps = [
             "pyinstaller>=6.0.0",
@@ -97,13 +120,12 @@ a = Analysis(
         "tkinter.ttk",
         "asyncio",
         "threading",
-        "whisper",
-        "pyaudio",
         "requests",
         "sqlite3",
-        "numpy",
-        "torch",
-        "torchaudio",
+        "aiohttp",
+        "websockets",
+        "pydantic",
+        "pillow",
     ],
     hookspath=[],
     hooksconfig={},
@@ -152,11 +174,11 @@ coll = COLLECT(
         with open(spec_file, 'w') as f:
             f.write(spec_content)
             
-        print("✓ Created PyInstaller spec file")
+        safe_print("✓ Created PyInstaller spec file")
         
     def _run_pyinstaller(self):
         """Run PyInstaller to build executable"""
-        print("🔨 Running PyInstaller...")
+        safe_print("🔨 Running PyInstaller...")
         
         try:
             subprocess.run([
@@ -166,14 +188,14 @@ coll = COLLECT(
                 "bloodclocktower.spec"
             ], check=True, cwd=self.project_root)
             
-            print("✓ PyInstaller build completed")
+            safe_print("✓ PyInstaller build completed")
             
         except subprocess.CalledProcessError as e:
             raise Exception(f"PyInstaller failed: {e}")
             
     def _package_resources(self):
         """Package additional resources with the executable"""
-        print("📦 Packaging resources...")
+        safe_print("📦 Packaging resources...")
         
         exe_dir = self.dist_dir / "BloodClockTowerAI"
         
@@ -253,11 +275,11 @@ pause
 For support, visit: https://github.com/your-repo/issues
 ''')
         
-        print("✓ Resources packaged")
+        safe_print("✓ Resources packaged")
         
     def _create_installer(self):
         """Create Windows installer using NSIS (if available)"""
-        print("📦 Creating installer...")
+        safe_print("📦 Creating installer...")
         
         try:
             # Check if NSIS is available
@@ -272,11 +294,11 @@ For support, visit: https://github.com/your-repo/issues
                 str(self.project_root / "installer.nsi")
             ], check=True)
             
-            print("✓ Installer created")
+            safe_print("✓ Installer created")
             
         except (subprocess.CalledProcessError, FileNotFoundError):
-            print("⚠️ NSIS not found, skipping installer creation")
-            print("💡 You can distribute the 'dist/BloodClockTowerAI' folder directly")
+            safe_print("⚠️ NSIS not found, skipping installer creation")
+            safe_print("💡 You can distribute the 'dist/BloodClockTowerAI' folder directly")
             
     def _create_nsis_script(self):
         """Create NSIS installer script"""
@@ -347,7 +369,7 @@ python -m src.gui.main_window
 pause
 ''')
         
-        print("✓ Created development script: run_dev.bat")
+        safe_print("✓ Created development script: run_dev.bat")
 
 
 def main():

@@ -412,7 +412,7 @@ class ObserverWindow:
             self.root.after(
                 0,
                 lambda: self._add_commentary(
-                    "✅ Successfully connected! Observing game..."
+                    "Successfully connected! Observing game..."
                 ),
             )
 

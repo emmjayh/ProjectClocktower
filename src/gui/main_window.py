@@ -441,7 +441,7 @@ class MainWindow:
         """Called when game successfully starts"""
         self.is_running = True
         self.status_label.config(text="Game Running", foreground="#27ae60")
-        self._log("✅ Game started successfully!")
+        self._log("Game started successfully!")
         self._update_players_display()
 
     def _on_game_error(self, error: str):

@@ -482,7 +482,7 @@ class StorytellerDashboard:
                 self.root.after(
                     0,
                     lambda: self.connection_status.config(
-                        text="✅ Connected", foreground="#4CAF50"
+                        text="Connected", foreground="#4CAF50"
                     ),
                 )
 

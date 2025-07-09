@@ -13,6 +13,10 @@ from tkinter import messagebox
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
+# Fix Windows Unicode encoding issues early
+from utils import fix_windows_encoding
+fix_windows_encoding()
+
 from gui.storyteller_dashboard import StorytellerDashboard
 
 

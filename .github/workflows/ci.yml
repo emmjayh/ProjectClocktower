@@ -43,7 +43,7 @@ jobs:
         
     - name: Check import sorting with isort
       run: |
-        isort --check-only src/
+        isort --profile black --check-only src/
         
     - name: Test with pytest
       run: |

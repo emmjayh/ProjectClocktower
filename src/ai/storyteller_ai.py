@@ -3,15 +3,13 @@ AI Storyteller Engine - Core decision making and narrative generation
 Handles all AI decisions for running Blood on the Clocktower games
 """
 
-import asyncio
-import json
 import logging
 import random
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
-from ..core.game_state import GamePhase, GameState, Player, PlayerStatus, Team
+from ..core.game_state import GameState, Player
 from ..game.clocktower_api import ClockTowerAPI
 from ..speech.speech_handler import SpeechHandler
 
@@ -272,9 +270,15 @@ class StorytellerAI:
         """Generate opening story for the game"""
         stories = {
             "trouble_brewing": [
-                f"Welcome to Ravenshollow, a peaceful town of {player_count} souls. But tonight, evil stirs in the shadows. An Imp has infiltrated your midst, and only by working together can the forces of good prevail.",
-                f"The sun sets over the quiet village of {player_count} residents. Little do they know that darkness has crept into their community. Trust will be tested, lies will be told, and only the light of truth can banish the evil that lurks among you.",
-                f"In a small town where everyone knows everyone, {player_count} neighbors gather. But one among you serves the forces of darkness. Will good triumph over evil, or will the shadows consume all?",
+                f"Welcome to Ravenshollow, a peaceful town of {player_count} souls. "
+                "But tonight, evil stirs in the shadows. An Imp has infiltrated your midst, "
+                "and only by working together can the forces of good prevail.",
+                f"The sun sets over the quiet village of {player_count} residents. "
+                "Little do they know that darkness has crept into their community. "
+                "Trust will be tested, lies will be told, and only the light of truth can banish the evil.",
+                f"In a small town where everyone knows everyone, {player_count} neighbors gather. "
+                "But one among you serves the forces of darkness. "
+                "Will good triumph over evil, or will the shadows consume all?",
             ]
         }
 
@@ -548,7 +552,7 @@ class StorytellerAI:
         self._log_decision(
             "demon_kill",
             0.7,
-            f"Selected based on role value and game balance",
+            "Selected based on role value and game balance",
             {
                 "demon": demon.name,
                 "target": target_name,
@@ -605,7 +609,7 @@ class StorytellerAI:
         self._log_decision(
             "monk_protection",
             0.6,
-            f"Protected most valuable target",
+            "Protected most valuable target",
             {"monk": monk.name, "target": target_name, "scores": protection_scores},
         )
 
@@ -647,7 +651,6 @@ class StorytellerAI:
 
         # Calculate likely execution probability
         alive_players = len(game_state.get_alive_players())
-        vote_threshold = (alive_players // 2) + 1
 
         # Estimate based on character and game state
         execution_probability = 0.5
@@ -686,9 +689,15 @@ class StorytellerAI:
 
         # Add character-specific flavor
         if dead_player.character == "Virgin" and cause == "execution":
-            announcement = f"The Virgin {dead_player.name} dies by the town's hand. Was this justice, or has evil triumphed?"
+            announcement = (
+                f"The Virgin {dead_player.name} dies by the town's hand. "
+                "Was this justice, or has evil triumphed?"
+            )
         elif dead_player.character == "Saint" and cause == "execution":
-            announcement = f"The Saint {dead_player.name} is executed! The town realizes too late their terrible mistake..."
+            announcement = (
+                f"The Saint {dead_player.name} is executed! "
+                "The town realizes too late their terrible mistake..."
+            )
 
         return announcement
 

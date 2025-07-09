@@ -1,0 +1,194 @@
+{
+  "script_name": "trouble_brewing",
+  "description": "The original Blood on the Clocktower script featuring classic characters",
+  "characters": {
+    "townsfolk": [
+      {
+        "name": "Washerwoman",
+        "ability": "You start knowing that 1 of 2 players is a particular Townsfolk.",
+        "team": "good",
+        "first_night": true,
+        "other_nights": false
+      },
+      {
+        "name": "Librarian", 
+        "ability": "You start knowing that 1 of 2 players is a particular Outsider. (Or that zero are in play.)",
+        "team": "good",
+        "first_night": true,
+        "other_nights": false
+      },
+      {
+        "name": "Investigator",
+        "ability": "You start knowing that 1 of 2 players is a particular Minion.",
+        "team": "good", 
+        "first_night": true,
+        "other_nights": false
+      },
+      {
+        "name": "Chef",
+        "ability": "You start knowing how many pairs of evil players sit next to each other.",
+        "team": "good",
+        "first_night": true,
+        "other_nights": false
+      },
+      {
+        "name": "Empath",
+        "ability": "Each night, you learn how many of your 2 alive neighbours are evil.",
+        "team": "good",
+        "first_night": true,
+        "other_nights": true
+      },
+      {
+        "name": "Fortune Teller",
+        "ability": "Each night, choose 2 players: you learn if either is a Demon. There is a good player that registers as a Demon to you.",
+        "team": "good",
+        "first_night": true,
+        "other_nights": true
+      },
+      {
+        "name": "Undertaker",
+        "ability": "Each night*, you learn which character died by execution today.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": true
+      },
+      {
+        "name": "Monk",
+        "ability": "Each night*, choose a player (not yourself): they are safe from the Demon tonight.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": true
+      },
+      {
+        "name": "Ravenkeeper",
+        "ability": "If you die at night, you are woken to choose a player: you learn their character.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": false,
+        "death_trigger": true
+      },
+      {
+        "name": "Virgin",
+        "ability": "The 1st time you are nominated, if the nominator is a Townsfolk, they are executed immediately.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": false
+      },
+      {
+        "name": "Slayer",
+        "ability": "Once per game, during the day, publicly choose a player: if they are the Demon, they die.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": false
+      },
+      {
+        "name": "Soldier",
+        "ability": "You are safe from the Demon.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": false
+      },
+      {
+        "name": "Mayor",
+        "ability": "If only 3 players live & no execution occurs, your team wins. If you die at night, another player might die instead.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": false
+      }
+    ],
+    "outsiders": [
+      {
+        "name": "Butler",
+        "ability": "Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too.",
+        "team": "good",
+        "first_night": true,
+        "other_nights": true
+      },
+      {
+        "name": "Drunk",
+        "ability": "You do not know you are the Drunk. You think you are a Townsfolk character, but you are not.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": false
+      },
+      {
+        "name": "Recluse",
+        "ability": "You might register as evil & as a Minion or Demon, even if dead.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": false
+      },
+      {
+        "name": "Saint",
+        "ability": "If you die by execution, your team loses.",
+        "team": "good",
+        "first_night": false,
+        "other_nights": false
+      }
+    ],
+    "minions": [
+      {
+        "name": "Poisoner",
+        "ability": "Each night, choose a player: they are poisoned tonight and tomorrow day.",
+        "team": "evil",
+        "first_night": true,
+        "other_nights": true
+      },
+      {
+        "name": "Spy",
+        "ability": "Each night, you see the Grimoire. You might register as good & as a Townsfolk or Outsider, even if dead.",
+        "team": "evil",
+        "first_night": true,
+        "other_nights": true
+      },
+      {
+        "name": "Scarlet Woman",
+        "ability": "If there are 5 or more players alive & the Demon dies, you become the Demon.",
+        "team": "evil",
+        "first_night": false,
+        "other_nights": true
+      },
+      {
+        "name": "Baron",
+        "ability": "[Setup] There are extra Outsiders in play.",
+        "team": "evil",
+        "first_night": false,
+        "other_nights": false
+      }
+    ],
+    "demons": [
+      {
+        "name": "Imp",
+        "ability": "Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp.",
+        "team": "evil",
+        "first_night": false,
+        "other_nights": true
+      }
+    ]
+  },
+  "night_order": {
+    "first_night": [
+      "Poisoner",
+      "Washerwoman", 
+      "Librarian",
+      "Investigator",
+      "Chef",
+      "Empath",
+      "Fortune Teller",
+      "Butler",
+      "Spy"
+    ],
+    "other_nights": [
+      "Poisoner",
+      "Monk", 
+      "Scarlet Woman",
+      "Imp",
+      "Ravenkeeper",
+      "Empath",
+      "Fortune Teller", 
+      "Undertaker",
+      "Butler",
+      "Spy"
+    ]
+  }
+}

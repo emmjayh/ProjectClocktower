@@ -84,9 +84,9 @@ class WindowsBuilder:
                 subprocess.run([
                     sys.executable, "-m", "pip", "install", dep
                 ], check=True, capture_output=True)
-                print(f"✓ Installed {dep}")
+                safe_print(f"✓ Installed {dep}")
             except subprocess.CalledProcessError:
-                print(f"⚠️ Failed to install {dep}")
+                safe_print(f"⚠️ Failed to install {dep}")
                 
     def _create_pyinstaller_spec(self):
         """Create PyInstaller spec file for advanced configuration"""

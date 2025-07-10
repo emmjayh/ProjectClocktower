@@ -27,7 +27,15 @@ def safe_print(text):
                    .replace('🔨', '[COMPILE]')
                    .replace('✓', '[OK]')
                    .replace('⚠️', '[WARNING]')
-                   .replace('💡', '[INFO]'))
+                   .replace('⚠', '[WARNING]')
+                   .replace('💡', '[INFO]')
+                   .replace('🎭', '[GAME]')
+                   .replace('🎮', '[GAME]')
+                   .replace('🎯', '[TARGET]')
+                   .replace('🏗', '[BUILD]')
+                   .replace('📝', '[NOTE]')
+                   .replace('🔧', '[CONFIG]')
+                   .replace('️', ''))  # Remove variation selector
     try:
         print(text)
     except UnicodeEncodeError:

@@ -421,3 +421,4 @@ class BotCAppEventProcessor:
         enhanced["source_platform"] = "botc_app"
 
         return enhanced
+

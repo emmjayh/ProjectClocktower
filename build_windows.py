@@ -13,7 +13,8 @@ import json
 # Fix Windows encoding issues
 if sys.platform.startswith('win'):
     try:
-        os.system('chcp 65001 > nul')
+        import subprocess
+        subprocess.run(["chcp", "65001"], capture_output=True, check=False)
         os.environ['PYTHONIOENCODING'] = 'utf-8'
     except Exception:
         pass
@@ -222,18 +223,18 @@ echo.
 cd /d "%~dp0"
 
 echo Creating models directory...
-mkdir models 2>nul
+if not exist models mkdir models
 
 echo Downloading Whisper models...
 python -c "import whisper; whisper.load_model('base', download_root='models/whisper_base')"
 
 echo Downloading Piper TTS...
-mkdir models\\piper_bin 2>nul
+if not exist models\\piper_bin mkdir models\\piper_bin
 powershell -Command "Invoke-WebRequest -Uri 'https://github.com/rhasspy/piper/releases/latest/download/piper_windows_amd64.zip' -OutFile 'models\\piper_bin\\piper.zip'"
 powershell -Command "Expand-Archive -Path 'models\\piper_bin\\piper.zip' -DestinationPath 'models\\piper_bin' -Force"
 
 echo Downloading TTS voices...
-mkdir models\\piper\\en_US-lessac-medium 2>nul
+if not exist models\\piper\\en_US-lessac-medium mkdir models\\piper\\en_US-lessac-medium
 powershell -Command "Invoke-WebRequest -Uri 'https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx' -OutFile 'models\\piper\\en_US-lessac-medium\\en_US-lessac-medium.onnx'"
 powershell -Command "Invoke-WebRequest -Uri 'https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json' -OutFile 'models\\piper\\en_US-lessac-medium\\en_US-lessac-medium.onnx.json'"
 

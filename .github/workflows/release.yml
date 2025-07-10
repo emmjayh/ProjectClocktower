@@ -53,48 +53,17 @@ jobs:
         name: windows-executable
         path: dist/
         
-    - name: Create Release with Windows executable
+    - name: Upload Windows executable to Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release create ${{ github.ref_name }} \
-          --title "Blood on the Clocktower AI Storyteller ${{ github.ref_name }}" \
-          --notes "## Blood on the Clocktower AI Storyteller ${{ github.ref_name }}
+        # Check if release exists, if not create it
+        if ! gh release view ${{ github.ref_name }}; then
+          gh release create ${{ github.ref_name }} \
+            --title "Blood on the Clocktower AI Storyteller ${{ github.ref_name }}" \
+            --notes "See release notes"
+        fi
         
-        ### 🎭 Features:
-        - Full AI Storyteller for Blood on the Clocktower
-        - Voice interaction with speech recognition and TTS
-        - Enhanced botc.app platform integration
-        - Complete Trouble Brewing script support
-        - Intelligent decision making for character abilities
-        - Real-time game state management
-        
-        ### 🆕 What's New in ${{ github.ref_name }}:
-        - **Enhanced botc.app Compatibility**: Added specialized BotCAppAdapter for seamless integration
-        - **Improved Connection Handling**: WebSocket with HTTP polling fallback
-        - **Better Error Recovery**: Robust handling of connection failures
-        - **Windows Build Fixes**: Resolved Unicode encoding and PyInstaller dependency issues
-        - **Code Quality**: Fixed all Black, isort, and flake8 formatting issues
-        
-        ### 🔧 Installation:
-        **Windows Users:**
-        1. Download \`BloodClockTowerAI-Windows.zip\`
-        2. Extract to a folder
-        3. Run \`download_models.bat\` first to download AI models
-        4. Run \`BloodClockTowerAI.exe\`
-        
-        **Developers:**
-        \`\`\`bash
-        git clone https://github.com/emmjayh/ProjectClocktower.git
-        cd ProjectClocktower
-        pip install -r requirements.txt
-        python -m src.gui.main_window
-        \`\`\`
-        
-        ### 🎯 System Requirements:
-        - Windows 10/11 (for executable)
-        - Python 3.11 or 3.12 (for source)
-        - Microphone for voice commands (optional)
-        - Speakers/headphones for AI narration (optional)
-        - Internet connection for platform integration" \
-          dist/BloodClockTowerAI-Windows.zip
+        # Upload the Windows executable
+        gh release upload ${{ github.ref_name }} dist/BloodClockTowerAI-Windows.zip \
+          --clobber

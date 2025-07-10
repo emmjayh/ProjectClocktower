@@ -135,6 +135,14 @@ a = Analysis(
         "websockets",
         "pydantic",
         "pillow",
+        # botc.app integration dependencies
+        "json",
+        "logging",
+        "hashlib",
+        "datetime",
+        # Explicitly include botc.app modules
+        "src.game.botc_app_adapter",
+        "src.game.botc_test",
     ],
     hookspath=[],
     hooksconfig={},

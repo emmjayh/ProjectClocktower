@@ -6,6 +6,7 @@ Specialized adapter for improving compatibility with botc.app platform
 import asyncio
 import json
 import logging
+import websockets
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -121,8 +122,6 @@ class BotCAppAdapter:
         """Try connecting as observer first, then upgrade to storyteller"""
         try:
             # Connect as observer
-            import websockets
-
             observer_url = (
                 f"{self.api.base_url.replace('http', 'ws')}/observe/{room_code}"
             )

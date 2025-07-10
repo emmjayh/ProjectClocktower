@@ -143,6 +143,14 @@ a = Analysis(
         # Explicitly include botc.app modules
         "src.game.botc_app_adapter",
         "src.game.botc_test",
+        # First run setup
+        "src.utils.first_run_setup",
+        # Speech dependencies for model downloads
+        "src.speech.speech_handler",
+        "whisper",
+        "numpy",
+        "torch",
+        "tqdm",
     ],
     hookspath=[],
     hooksconfig={},
@@ -220,36 +228,12 @@ coll = COLLECT(
         models_dir = exe_dir / "models"
         models_dir.mkdir(exist_ok=True)
         
-        # Create download script for models
-        download_script = exe_dir / "download_models.bat"
-        with open(download_script, 'w', encoding='utf-8') as f:
+        # Create simple launcher script
+        launcher_script = exe_dir / "BloodClockTowerAI.bat"
+        with open(launcher_script, 'w', encoding='utf-8') as f:
             f.write('''@echo off
-echo Downloading AI models for Blood on the Clocktower...
-echo This may take several minutes depending on your internet connection.
-echo.
-
 cd /d "%~dp0"
-
-echo Creating models directory...
-if not exist models mkdir models
-
-echo Downloading Whisper models...
-python -c "import whisper; whisper.load_model('base', download_root='models/whisper_base')"
-
-echo Downloading Piper TTS...
-if not exist models\\piper_bin mkdir models\\piper_bin
-powershell -Command "Invoke-WebRequest -Uri 'https://github.com/rhasspy/piper/releases/latest/download/piper_windows_amd64.zip' -OutFile 'models\\piper_bin\\piper.zip'"
-powershell -Command "Expand-Archive -Path 'models\\piper_bin\\piper.zip' -DestinationPath 'models\\piper_bin' -Force"
-
-echo Downloading TTS voices...
-if not exist models\\piper\\en_US-lessac-medium mkdir models\\piper\\en_US-lessac-medium
-powershell -Command "Invoke-WebRequest -Uri 'https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx' -OutFile 'models\\piper\\en_US-lessac-medium\\en_US-lessac-medium.onnx'"
-powershell -Command "Invoke-WebRequest -Uri 'https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json' -OutFile 'models\\piper\\en_US-lessac-medium\\en_US-lessac-medium.onnx.json'"
-
-echo.
-echo [OK] Model download complete!
-echo You can now run BloodClockTowerAI.exe
-pause
+start "" "BloodClockTowerAI.exe"
 ''')
         
         # Create README for Windows
@@ -257,11 +241,10 @@ pause
         with open(readme_file, 'w', encoding='utf-8') as f:
             f.write('''Blood on the Clocktower AI Agent - Windows Version
 
-[GAME] FIRST TIME SETUP:
-1. Run "download_models.bat" FIRST to download AI models
-   (This downloads speech recognition and text-to-speech models)
-   
-2. After models download, run "BloodClockTowerAI.exe"
+[GAME] QUICK START:
+1. Double-click "BloodClockTowerAI.exe" to start
+2. On first run, the AI will automatically download required models
+3. After setup completes, the main application will start
 
 [GAME] HOW TO USE:
 - Enter player names in the Setup tab (one per line)
@@ -277,19 +260,19 @@ pause
 - For best results, use a quiet room
 - If speech recognition fails, use manual text input
 
-[NOTE] CONTROLS:
-- Speech recognition listens automatically during game
-- Use manual text input if voice commands don't work
-- Game log shows all actions and events
-- Players tab shows current game state
+[NOTE] FIRST RUN:
+- The first time you run the app, it will download AI models
+- This requires an internet connection (about 200MB download)
+- The download only happens once
+- Models are saved in your user folder
 
 [TARGET] REQUIREMENTS:
 - Windows 10/11
-- Microphone for voice commands
+- Microphone for voice commands (optional)
 - Speakers/headphones for AI narration
-- Internet connection for initial model download
+- Internet connection for first-time setup
 
-For support, visit: https://github.com/your-repo/issues
+For support, visit: https://github.com/emmjayh/ProjectClocktower/issues
 ''')
         
         safe_print("✓ Resources packaged")

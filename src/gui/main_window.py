@@ -650,6 +650,19 @@ class MainWindow:
 
 def main():
     """Main function to run the Windows GUI app"""
+    # Check for first run and download models if needed
+    try:
+        from ..utils.first_run_setup import run_first_time_setup
+        run_first_time_setup()
+    except ImportError:
+        # If running from source without proper package structure
+        import sys
+        import os
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from utils.first_run_setup import run_first_time_setup
+        run_first_time_setup()
+    
+    # Start main application
     root = tk.Tk()
     app = MainWindow(root)
 

@@ -11,6 +11,9 @@ from pathlib import Path
 
 from src.speech.speech_handler import ModelDownloader, SpeechConfig
 
+# Increase recursion limit to prevent download failures
+sys.setrecursionlimit(5000)
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

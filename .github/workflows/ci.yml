@@ -108,13 +108,16 @@ jobs:
         cd dist
         zip -r BloodClockTowerAI-Windows.zip BloodClockTowerAI/
         
-    - name: Create Release with Windows executable
+    - name: Upload Windows executable to Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release create ${{ github.ref_name }} \
-          --title "Blood on the Clocktower AI Storyteller ${{ github.ref_name }}" \
-          --notes "## Blood on the Clocktower AI Storyteller ${{ github.ref_name }}
+        # Check if release exists, create if not
+        if ! gh release view ${{ github.ref_name }} 2>/dev/null; then
+          echo "Creating new release..."
+          gh release create ${{ github.ref_name }} \
+            --title "Blood on the Clocktower AI Storyteller ${{ github.ref_name }}" \
+            --notes "## Blood on the Clocktower AI Storyteller ${{ github.ref_name }}
         
         🎭 **Features:**
         - Full AI Storyteller for Blood on the Clocktower
@@ -134,5 +137,12 @@ jobs:
         - Windows 10/11
         - Microphone for voice commands
         - Speakers/headphones for AI narration
-        - Internet connection for initial model download" \
-          dist/BloodClockTowerAI-Windows.zip
+        - Internet connection for initial model download"
+        else
+          echo "Release already exists, uploading assets..."
+        fi
+        
+        # Upload the Windows executable
+        echo "Uploading Windows executable..."
+        gh release upload ${{ github.ref_name }} dist/BloodClockTowerAI-Windows.zip \
+          --clobber

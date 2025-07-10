@@ -4,7 +4,7 @@ Checks for optional audio processing dependencies and provides fallbacks
 """
 
 import logging
-from typing import Dict, bool
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 

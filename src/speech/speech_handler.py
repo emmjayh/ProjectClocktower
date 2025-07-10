@@ -14,6 +14,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+# Increase recursion limit to prevent download failures
+sys.setrecursionlimit(10000)
+
 # Import audio dependencies gracefully
 from .audio_dependencies import pyaudio, requests, whisper
 
@@ -169,14 +172,6 @@ class ModelDownloader:
             if progress_callback:
                 progress_callback("Checking Piper voice requirements...", 0)
 
-            # Check if requests is available
-            if requests is None:
-                error_msg = "Requests library not available - install with: pip install requests"
-                self.logger.error(error_msg)
-                if progress_callback:
-                    progress_callback(f"Error: {error_msg}")
-                return False
-
             if voice_name not in self.piper_voices:
                 error_msg = f"Unknown voice: {voice_name}"
                 self.logger.error(error_msg)
@@ -185,7 +180,7 @@ class ModelDownloader:
                 return False
 
             if progress_callback:
-                progress_callback("Initializing Piper download...", 10)
+                progress_callback("Initializing Piper download...", 5)
 
             voice_info = self.piper_voices[voice_name]
             voice_dir = self.models_dir / "piper" / voice_name
@@ -198,33 +193,21 @@ class ModelDownloader:
             if not model_path.exists():
                 self.logger.info(f"Downloading Piper voice model: {voice_name}")
                 if progress_callback:
-                    progress_callback(f"Downloading Piper voice model...", 30)
-
-                # Create a wrapper that converts the progress to percentage
-                def model_progress_wrapper(message):
-                    if "%" in message:
-                        try:
-                            percent = float(message.split(":")[1].split("%")[0].strip())
-                            final_percent = 30 + (percent * 0.5)  # 30-80%
-                            progress_callback(message, final_percent)
-                        except:
-                            progress_callback(message, 50)
-                    else:
-                        progress_callback(message, 50)
+                    progress_callback(f"Downloading Piper voice model...", 10)
 
                 await self._download_file(
-                    voice_info["url"], model_path, model_progress_wrapper
+                    voice_info["url"], model_path, progress_callback
                 )
 
             # Download config file
             if not config_path.exists():
                 self.logger.info(f"Downloading Piper voice config: {voice_name}")
                 if progress_callback:
-                    progress_callback(f"Downloading Piper voice config...", 85)
+                    progress_callback(f"Downloading Piper voice config...", 95)
                 await self._download_file(
                     voice_info["config_url"],
                     config_path,
-                    lambda msg: progress_callback(msg, 90),
+                    progress_callback
                 )
 
             if progress_callback:
@@ -245,30 +228,37 @@ class ModelDownloader:
     ) -> None:
         """Download file with progress"""
         try:
-            response = requests.get(url, stream=True, timeout=30)
-            response.raise_for_status()
-
-            total_size = int(response.headers.get("content-length", 0))
-            downloaded = 0
-
-            with open(path, "wb") as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
+            # Use urllib instead of requests to avoid potential recursion issues
+            import urllib.request
+            import urllib.error
+            
+            req = urllib.request.Request(
+                url,
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+            )
+            
+            with urllib.request.urlopen(req, timeout=120) as response:
+                total_size = int(response.headers.get('Content-Length', 0))
+                downloaded = 0
+                
+                with open(path, 'wb') as f:
+                    while True:
+                        chunk = response.read(8192)
+                        if not chunk:
+                            break
+                        
                         f.write(chunk)
                         downloaded += len(chunk)
-
+                        
                         if total_size > 0:
                             progress = (downloaded / total_size) * 100
                             if progress_callback:
-                                # Support both old and new callback formats
                                 try:
-                                    # Try new format with percentage parameter
                                     progress_callback(
                                         f"Downloading {path.name}: {progress:.1f}%",
-                                        progress,
+                                        progress
                                     )
                                 except TypeError:
-                                    # Fall back to old format
                                     progress_callback(
                                         f"Downloading {path.name}: {progress:.1f}%"
                                     )
@@ -276,15 +266,14 @@ class ModelDownloader:
                                 print(
                                     f"\rDownloading {path.name}: {progress:.1f}%",
                                     end="",
-                                    flush=True,
+                                    flush=True
                                 )
                         elif progress_callback:
-                            # If no content-length, show bytes downloaded
                             mb_downloaded = downloaded / (1024 * 1024)
                             try:
                                 progress_callback(
                                     f"Downloading {path.name}: {mb_downloaded:.1f} MB",
-                                    min(90, mb_downloaded * 10),  # Rough estimate
+                                    50  # Fixed progress for unknown size
                                 )
                             except TypeError:
                                 progress_callback(

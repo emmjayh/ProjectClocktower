@@ -82,11 +82,17 @@ jobs:
       run: |
         python build_windows.py
         
+    - name: Create ZIP of Windows executable
+      shell: pwsh
+      run: |
+        cd dist
+        Compress-Archive -Path "BloodClockTowerAI" -DestinationPath "BloodClockTowerAI-Windows.zip"
+        
     - name: Upload Windows build
       uses: actions/upload-artifact@v4
       with:
         name: windows-executable
-        path: dist/
+        path: dist/BloodClockTowerAI-Windows.zip
         retention-days: 30
 
   release:
@@ -103,10 +109,10 @@ jobs:
         name: windows-executable
         path: dist/
         
-    - name: Create ZIP of Windows executable
+    - name: List downloaded files
       run: |
-        cd dist
-        zip -r BloodClockTowerAI-Windows.zip BloodClockTowerAI/
+        echo "Contents of dist directory:"
+        ls -la dist/
         
     - name: Upload Windows executable to Release
       env:

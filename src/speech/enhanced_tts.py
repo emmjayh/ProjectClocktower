@@ -10,8 +10,17 @@ import os
 import tempfile
 from pathlib import Path
 from typing import Optional, Dict, Any
-import pygame
-import requests
+
+# Optional dependencies
+try:
+    import pygame
+except ImportError:
+    pygame = None
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 
 class OpenAITTS:

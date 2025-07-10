@@ -6,17 +6,30 @@ Real-time detection of game commands during active conversation
 import asyncio
 import collections
 import logging
-import numpy as np
-import pyaudio
 import threading
 import time
 import tempfile
 import os
 from dataclasses import dataclass, field
 from typing import List, Optional, Callable, Dict, Any
-import whisper
 import queue
 import wave
+
+# Optional dependencies - handle gracefully if missing
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+try:
+    import pyaudio
+except ImportError:
+    pyaudio = None
+
+try:
+    import whisper
+except ImportError:
+    whisper = None
 
 
 @dataclass

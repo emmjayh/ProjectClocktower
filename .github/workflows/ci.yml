@@ -75,8 +75,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # Install only core dependencies for Windows build, skip heavy ML packages
+        # Install core dependencies plus audio processing for Windows build
         pip install requests aiohttp websockets pydantic pillow pyinstaller
+        pip install numpy torch librosa scikit-learn pygame soundfile
+        # Skip pyaudio to avoid Windows build issues - will be optional at runtime
         
     - name: Build Windows executable
       run: |

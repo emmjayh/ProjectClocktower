@@ -5,16 +5,30 @@ Identifies who is speaking for accurate nomination tracking
 
 import asyncio
 import logging
-import numpy as np
 import tempfile
 import os
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-import librosa
 import pickle
 from pathlib import Path
+
+# Optional dependencies - handle gracefully if missing
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+try:
+    from sklearn.cluster import KMeans
+    from sklearn.preprocessing import StandardScaler
+except ImportError:
+    KMeans = None
+    StandardScaler = None
+
+try:
+    import librosa
+except ImportError:
+    librosa = None
 
 
 @dataclass

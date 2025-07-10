@@ -15,21 +15,12 @@ from typing import List, Optional, Callable, Dict, Any
 import queue
 import wave
 
-# Optional dependencies - handle gracefully if missing
-try:
-    import numpy as np
-except ImportError:
-    np = None
-
-try:
-    import pyaudio
-except ImportError:
-    pyaudio = None
-
-try:
-    import whisper
-except ImportError:
-    whisper = None
+# Import dependencies through dependency checker
+from .audio_dependencies import (
+    np, pyaudio, whisper, 
+    check_continuous_listening_support,
+    require_dependency
+)
 
 
 @dataclass
@@ -133,6 +124,12 @@ class ContinuousListener:
     def __init__(self, config: ListenerConfig = None):
         self.config = config or ListenerConfig()
         self.logger = logging.getLogger(__name__)
+        
+        # Check if continuous listening is supported
+        self.support = check_continuous_listening_support()
+        if not self.support["supported"]:
+            self.logger.warning("Continuous listening not fully supported - some features disabled")
+            self.logger.warning(f"Missing dependencies: {', '.join(self.support['missing'])}")
         
         # Audio components
         self.audio = None

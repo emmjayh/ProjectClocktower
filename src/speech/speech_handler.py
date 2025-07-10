@@ -100,7 +100,31 @@ class ModelDownloader:
                 )
 
             # This will download the model if it doesn't exist
-            model = whisper.load_model(model_size, download_root=str(model_path))
+            self.logger.info(f"Attempting to load Whisper model: {model_size}")
+            self.logger.info(f"Download root: {model_path}")
+            
+            # Validate model size
+            valid_models = ["tiny", "base", "small", "medium", "large", "tiny.en", "base.en", "small.en", "medium.en"]
+            if model_size not in valid_models:
+                raise ValueError(f"Invalid model size: {model_size}. Valid options: {valid_models}")
+            
+            # Try downloading with retry logic
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    if progress_callback:
+                        progress_callback(f"Loading {model_size} model (attempt {attempt + 1}/{max_retries})...", 20 + (attempt * 20))
+                    
+                    model = whisper.load_model(model_size, download_root=str(model_path))
+                    break  # Success, exit retry loop
+                    
+                except Exception as e:
+                    self.logger.warning(f"Attempt {attempt + 1} failed: {e}")
+                    if attempt == max_retries - 1:
+                        raise  # Re-raise on final attempt
+                    if progress_callback:
+                        progress_callback(f"Retrying download... (attempt {attempt + 2}/{max_retries})", 20 + (attempt * 20))
+                    await asyncio.sleep(2)  # Wait before retry
 
             if progress_callback:
                 progress_callback("Whisper model ready!", 100)

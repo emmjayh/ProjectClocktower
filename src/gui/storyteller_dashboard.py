@@ -4,17 +4,16 @@ Main interface for AI Storyteller to manage games on online platforms
 """
 
 import asyncio
-import json
 import logging
 import threading
 import tkinter as tk
-from dataclasses import dataclass
 from datetime import datetime
 from tkinter import messagebox, scrolledtext, ttk
-from typing import Any, Dict, List, Optional, Set
+from typing import List
 
 from ..ai.storyteller_ai import StorytellerAI
 from ..core.game_state import GamePhase, GameState, Player, PlayerStatus
+from ..game.botc_app_adapter import BotCAppAdapter, BotCAppEventProcessor
 from ..game.clocktower_api import ClockTowerAPI
 from ..speech.speech_handler import SpeechConfig, SpeechHandler
 
@@ -30,6 +29,8 @@ class StorytellerDashboard:
 
         # Core components
         self.api_client = None
+        self.botc_adapter = None
+        self.event_processor = None
         self.speech_handler = None
         self.storyteller_ai = None
         self.game_state = None
@@ -453,8 +454,13 @@ class StorytellerDashboard:
 
             self.api_client = ClockTowerAPI(base_url, room_code)
 
-            # Connect
-            success = await self.api_client.connect()
+            # Initialize botc.app adapter if connecting to botc.app
+            if platform == "botc.app":
+                self.botc_adapter = BotCAppAdapter(self.api_client)
+                self.event_processor = BotCAppEventProcessor()
+                success = await self.botc_adapter.enhanced_connect(room_code)
+            else:
+                success = await self.api_client.connect()
 
             if success:
                 self.is_connected = True
@@ -470,7 +476,11 @@ class StorytellerDashboard:
                 )
 
                 # Get initial game state
-                game_state = await self.api_client.get_current_game_state()
+                if self.botc_adapter:
+                    game_state = await self.botc_adapter.get_enhanced_game_state()
+                else:
+                    game_state = await self.api_client.get_current_game_state()
+
                 if game_state:
                     self.game_state = self._parse_game_state(game_state)
                     self.root.after(0, self._update_grimoire)
@@ -517,6 +527,10 @@ class StorytellerDashboard:
 
     async def _process_platform_event(self, event):
         """Process event from platform"""
+        # Process event through botc.app adapter if available
+        if self.event_processor and event.source.startswith("botc_app"):
+            event = self.event_processor.process_event(event)
+
         event_type = event.event_type
         data = event.data
 
@@ -529,6 +543,8 @@ class StorytellerDashboard:
             await self._handle_game_started(data)
         elif event_type == "player_action":
             await self._handle_player_action(data)
+        elif event_type == "state_change" and self.botc_adapter:
+            await self._handle_botc_state_change(data)
 
     def _start_night_phase(self):
         """Start night phase"""
@@ -895,6 +911,120 @@ class StorytellerDashboard:
             "Undertaker",
             "Butler",
         ]
+
+    async def _handle_botc_state_change(self, data):
+        """Handle botc.app state change events"""
+        try:
+            self._log_ai_decision("Processing botc.app state change")
+
+            # Update local game state
+            if "players" in data:
+                await self._update_players_from_botc(data["players"])
+
+            if "phase" in data:
+                await self._update_phase_from_botc(data["phase"])
+
+            if "script_info" in data:
+                await self._update_script_info(data["script_info"])
+
+            # Refresh UI
+            self.root.after(0, self._update_grimoire)
+
+        except Exception as e:
+            self.logger.error(f"botc.app state change error: {e}")
+
+    async def _update_players_from_botc(self, players_data):
+        """Update player information from botc.app data"""
+        if not self.game_state:
+            return
+
+        try:
+            for player_data in players_data:
+                player_name = player_data.get("name")
+                if player_name:
+                    # Find existing player or create new one
+                    existing_player = next(
+                        (p for p in self.game_state.players if p.name == player_name),
+                        None,
+                    )
+
+                    if existing_player:
+                        # Update existing player
+                        existing_player.character = player_data.get(
+                            "character", existing_player.character
+                        )
+                        existing_player.team = player_data.get(
+                            "team", existing_player.team
+                        )
+                        existing_player.is_drunk = player_data.get(
+                            "drunk", existing_player.is_drunk
+                        )
+                        existing_player.is_poisoned = player_data.get(
+                            "poisoned", existing_player.is_poisoned
+                        )
+
+                        # Update status
+                        if "alive" in player_data:
+                            existing_player.status = (
+                                PlayerStatus.ALIVE
+                                if player_data["alive"]
+                                else PlayerStatus.DEAD
+                            )
+
+            self._log_communication("🔄 Player data synchronized with botc.app")
+
+        except Exception as e:
+            self.logger.error(f"Player update failed: {e}")
+
+    async def _update_phase_from_botc(self, phase_data):
+        """Update game phase from botc.app"""
+        if not self.game_state:
+            return
+
+        try:
+            if isinstance(phase_data, str):
+                phase_name = phase_data.lower()
+            else:
+                phase_name = phase_data.get("name", "").lower()
+
+            # Map botc.app phase names to our enum
+            phase_mapping = {
+                "night": GamePhase.NIGHT,
+                "day": GamePhase.DAY_DISCUSSION,
+                "nomination": GamePhase.NOMINATIONS,
+                "voting": GamePhase.VOTING,
+                "setup": GamePhase.SETUP,
+            }
+
+            new_phase = phase_mapping.get(phase_name, self.game_state.phase)
+            if new_phase != self.game_state.phase:
+                self.game_state.phase = new_phase
+
+                # Update UI
+                self.root.after(
+                    0,
+                    lambda: self.phase_label.config(
+                        text=f"Phase: {new_phase.value.upper()}"
+                    ),
+                )
+
+                self._log_communication(f"🔄 Phase synchronized: {new_phase.value}")
+
+        except Exception as e:
+            self.logger.error(f"Phase update failed: {e}")
+
+    async def _update_script_info(self, script_data):
+        """Update script information from botc.app"""
+        try:
+            script_name = script_data.get("name", "Unknown Script")
+            self._log_ai_decision(f"Script: {script_name}")
+
+            # Store night order if available
+            if "night_order" in script_data:
+                self.current_night_order = script_data["night_order"]
+
+        except Exception as e:
+            self.logger.error(f"Script info update failed: {e}")
 
 
 def main():

@@ -14,11 +14,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+# Import audio dependencies gracefully
+from .audio_dependencies import pyaudio, whisper
+
 # Increase recursion limit to prevent download failures
 sys.setrecursionlimit(10000)
-
-# Import audio dependencies gracefully
-from .audio_dependencies import pyaudio, requests, whisper
 
 
 @dataclass
@@ -133,9 +133,7 @@ class ModelDownloader:
                             20 + (attempt * 20),
                         )
 
-                    model = whisper.load_model(
-                        model_size, download_root=str(model_path)
-                    )
+                    whisper.load_model(model_size, download_root=str(model_path))
                     break  # Success, exit retry loop
 
                 except Exception as e:
@@ -193,7 +191,7 @@ class ModelDownloader:
             if not model_path.exists():
                 self.logger.info(f"Downloading Piper voice model: {voice_name}")
                 if progress_callback:
-                    progress_callback(f"Downloading Piper voice model...", 10)
+                    progress_callback("Downloading Piper voice model...", 10)
 
                 await self._download_file(
                     voice_info["url"], model_path, progress_callback
@@ -203,11 +201,9 @@ class ModelDownloader:
             if not config_path.exists():
                 self.logger.info(f"Downloading Piper voice config: {voice_name}")
                 if progress_callback:
-                    progress_callback(f"Downloading Piper voice config...", 95)
+                    progress_callback("Downloading Piper voice config...", 95)
                 await self._download_file(
-                    voice_info["config_url"],
-                    config_path,
-                    progress_callback
+                    voice_info["config_url"], config_path, progress_callback
                 )
 
             if progress_callback:
@@ -229,34 +225,36 @@ class ModelDownloader:
         """Download file with progress"""
         try:
             # Use urllib instead of requests to avoid potential recursion issues
-            import urllib.request
             import urllib.error
-            
+            import urllib.request
+
             req = urllib.request.Request(
                 url,
-                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                },
             )
-            
+
             with urllib.request.urlopen(req, timeout=120) as response:
-                total_size = int(response.headers.get('Content-Length', 0))
+                total_size = int(response.headers.get("Content-Length", 0))
                 downloaded = 0
-                
-                with open(path, 'wb') as f:
+
+                with open(path, "wb") as f:
                     while True:
                         chunk = response.read(8192)
                         if not chunk:
                             break
-                        
+
                         f.write(chunk)
                         downloaded += len(chunk)
-                        
+
                         if total_size > 0:
                             progress = (downloaded / total_size) * 100
                             if progress_callback:
                                 try:
                                     progress_callback(
                                         f"Downloading {path.name}: {progress:.1f}%",
-                                        progress
+                                        progress,
                                     )
                                 except TypeError:
                                     progress_callback(
@@ -266,14 +264,14 @@ class ModelDownloader:
                                 print(
                                     f"\rDownloading {path.name}: {progress:.1f}%",
                                     end="",
-                                    flush=True
+                                    flush=True,
                                 )
                         elif progress_callback:
                             mb_downloaded = downloaded / (1024 * 1024)
                             try:
                                 progress_callback(
                                     f"Downloading {path.name}: {mb_downloaded:.1f} MB",
-                                    50  # Fixed progress for unknown size
+                                    50,  # Fixed progress for unknown size
                                 )
                             except TypeError:
                                 progress_callback(

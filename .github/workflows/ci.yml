@@ -32,8 +32,9 @@ jobs:
         python -m pip install --upgrade pip
         # Install dev dependencies first (lighter)
         pip install -r requirements-dev.txt
-        # Install only core dependencies, skip heavy ML dependencies
-        pip install requests aiohttp websockets pydantic pillow pyinstaller
+        # Install only core dependencies for tests, skip audio processing
+        pip install requests aiohttp websockets pydantic pillow
+        # Skip: torch, librosa, scikit-learn, pygame - too heavy for CI tests
         
     - name: Lint with flake8
       run: |

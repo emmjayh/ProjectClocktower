@@ -8,33 +8,36 @@ import os
 import sys
 from pathlib import Path
 
+
 def setup_imports():
     """Setup import paths for the application"""
     # Get the directory containing this script
     launcher_dir = Path(__file__).parent.absolute()
-    
+
     # Add the project root to Python path
     if launcher_dir not in sys.path:
         sys.path.insert(0, str(launcher_dir))
-    
-    # Add the src directory to Python path  
+
+    # Add the src directory to Python path
     src_dir = launcher_dir / "src"
     if src_dir.exists() and str(src_dir) not in sys.path:
         sys.path.insert(0, str(src_dir))
-    
+
     print(f"Launcher directory: {launcher_dir}")
     print(f"Python path: {sys.path[:3]}...")  # Show first 3 entries
+
 
 def main():
     """Main launcher function"""
     print("Blood on the Clocktower AI Agent - Starting...")
-    
+
     # Setup import paths
     setup_imports()
-    
+
     try:
         # Try to import and run the main window
         from src.gui.main_window import main as gui_main
+
         print("Successfully imported GUI module")
         gui_main()
     except ImportError as e:
@@ -42,6 +45,7 @@ def main():
         try:
             # Fallback: try direct import
             from gui.main_window import main as gui_main
+
             print("Successfully imported GUI module (fallback)")
             gui_main()
         except ImportError as e2:
@@ -54,6 +58,7 @@ def main():
             print(f"Script location: {Path(__file__).parent}")
             print(f"Files in directory: {list(Path('.').glob('*'))}")
             sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

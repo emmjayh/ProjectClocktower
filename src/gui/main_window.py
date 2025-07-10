@@ -22,11 +22,12 @@ except ImportError:
     # Fallback for when running as executable or direct script
     import os
     import sys
+
     # Add the src directory to the path
     src_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if src_path not in sys.path:
         sys.path.insert(0, src_path)
-    
+
     from core.ai_storyteller import AIStoryteller, GamePhase
     from core.game_state import GameState, Player, PlayerStatus
     from speech.speech_handler import SpeechConfig, SpeechHandler

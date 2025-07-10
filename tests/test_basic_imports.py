@@ -8,17 +8,16 @@ import pytest
 def test_core_imports():
     """Test that core modules can be imported"""
     # These should always work
-    from src.core import game_state
-    from src.core import ai_storyteller
+    from src.core import ai_storyteller, game_state
 
     # Basic game modules
-    from src.game import rule_engine
-    from src.game import clocktower_api
+    from src.game import clocktower_api, rule_engine
 
     # GUI modules require tkinter which isn't available in CI
     # Test them only if tkinter is available
     try:
         import tkinter
+
         from src.gui import main_window
     except ImportError:
         # Skip GUI tests in environments without tkinter
@@ -45,10 +44,8 @@ def test_speech_dependencies_module():
 def test_audio_modules_safe_import():
     """Test that audio modules can be imported safely even without dependencies"""
     # These should not fail even if audio dependencies are missing
-    from src.speech import continuous_listener
-    from src.speech import speaker_identification
-    from src.speech import enhanced_tts
     from src.game import live_game_monitor
+    from src.speech import continuous_listener, enhanced_tts, speaker_identification
 
     # Basic instantiation should work (even if features are disabled)
     config = continuous_listener.ListenerConfig()

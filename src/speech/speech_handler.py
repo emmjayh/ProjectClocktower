@@ -14,9 +14,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import pyaudio
-import requests
-import whisper
+# Import audio dependencies gracefully
+from .audio_dependencies import pyaudio, whisper, requests
 
 
 @dataclass
@@ -77,7 +76,10 @@ class ModelDownloader:
             self.logger.info(
                 f"Loading Whisper {model_size} model (downloading if needed)..."
             )
-            whisper.load_model(model_size, download_root=str(model_path))
+            if whisper is not None:
+                whisper.load_model(model_size, download_root=str(model_path))
+            else:
+                self.logger.warning("Whisper not available - skipping model download")
 
             self.logger.info(f"Whisper {model_size} model ready")
             return True
@@ -247,6 +249,19 @@ class SpeechHandler:
         """Initialize speech handler with model downloads"""
         try:
             self.logger.info("Initializing speech handler...")
+
+            # Check if dependencies are available
+            if whisper is None:
+                self.logger.error(
+                    "Whisper not available - install with: pip install openai-whisper"
+                )
+                return False
+
+            if pyaudio is None:
+                self.logger.error(
+                    "PyAudio not available - install with: pip install pyaudio"
+                )
+                return False
 
             # Install dependencies
             await self.downloader.install_dependencies()

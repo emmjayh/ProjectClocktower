@@ -10,13 +10,16 @@ import pickle
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # Optional dependencies - handle gracefully if missing
 try:
     import numpy as np
+
+    NDArray = np.ndarray
 except ImportError:
     np = None
+    NDArray = Any
 
 try:
     from sklearn.cluster import KMeans
@@ -36,7 +39,7 @@ class SpeakerProfile:
     """Profile for a known speaker"""
 
     name: str
-    voice_features: np.ndarray
+    voice_features: NDArray
     confidence_threshold: float = 0.7
     sample_count: int = 0
 
@@ -54,9 +57,7 @@ class VoiceFeatureExtractor:
         self.n_mel = 8
         self.hop_length = 512
 
-    def extract_features(
-        self, audio_data: np.ndarray, sample_rate: int = None
-    ) -> np.ndarray:
+    def extract_features(self, audio_data: NDArray, sample_rate: int = None) -> NDArray:
         """Extract voice features from audio"""
         try:
             if sample_rate is None:
@@ -133,7 +134,7 @@ class SpeakerIdentifier:
         self.load_profiles()
 
     def add_speaker_sample(
-        self, name: str, audio_data: np.ndarray, sample_rate: int = 16000
+        self, name: str, audio_data: NDArray, sample_rate: int = 16000
     ):
         """Add a voice sample for a speaker"""
         try:
@@ -174,7 +175,7 @@ class SpeakerIdentifier:
             return False
 
     def identify_speaker(
-        self, audio_data: np.ndarray, sample_rate: int = 16000
+        self, audio_data: NDArray, sample_rate: int = 16000
     ) -> Tuple[Optional[str], float]:
         """Identify speaker from audio"""
         try:
@@ -210,9 +211,7 @@ class SpeakerIdentifier:
             self.logger.error(f"Speaker identification failed: {e}")
             return None, 0.0
 
-    def _calculate_similarity(
-        self, features1: np.ndarray, features2: np.ndarray
-    ) -> float:
+    def _calculate_similarity(self, features1: NDArray, features2: NDArray) -> float:
         """Calculate similarity between feature vectors"""
         try:
             # Normalize features
@@ -345,7 +344,7 @@ class VoiceSeparationSystem:
         self.speaker_id.save_profiles()
         self.logger.info("Exited training mode")
 
-    def process_audio(self, audio_data: np.ndarray, sample_rate: int = 16000) -> Dict:
+    def process_audio(self, audio_data: NDArray, sample_rate: int = 16000) -> Dict:
         """Process audio for speaker identification or training"""
         result = {"speaker": None, "confidence": 0.0, "training": self.training_mode}
 

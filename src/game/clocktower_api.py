@@ -10,8 +10,16 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
-import aiohttp
-import websockets
+# Optional dependencies for API features
+try:
+    import aiohttp
+except ImportError:
+    aiohttp = None
+
+try:
+    import websockets
+except ImportError:
+    websockets = None
 
 
 @dataclass
@@ -53,6 +61,13 @@ class ClockTowerAPI:
         try:
             self.logger.info(f"Connecting to {self.platform} at {self.base_url}")
 
+            # Check if aiohttp is available
+            if aiohttp is None:
+                self.logger.error(
+                    "aiohttp not available - install with: pip install aiohttp"
+                )
+                return False
+
             # Create HTTP session
             self.session = aiohttp.ClientSession()
 
@@ -82,6 +97,12 @@ class ClockTowerAPI:
                     self.logger.info(f"Found game: {game_data.get('name', 'Unnamed')}")
 
             # Connect to WebSocket
+            if websockets is None:
+                self.logger.error(
+                    "websockets not available - install with: pip install websockets"
+                )
+                return False
+
             ws_url = f"{self.base_url.replace('http', 'ws')}/ws"
             if self.room_code:
                 ws_url += f"/{self.room_code}"
@@ -126,6 +147,12 @@ class ClockTowerAPI:
                     self.logger.info(f"Connected to botc.app room: {self.room_code}")
 
             # Attempt websocket connection with botc.app patterns
+            if websockets is None:
+                self.logger.error(
+                    "websockets not available - install with: pip install websockets"
+                )
+                return False
+
             # Try common websocket endpoints
             ws_endpoints = [
                 f"{self.base_url.replace('http', 'ws')}/socket.io/",

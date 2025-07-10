@@ -79,7 +79,7 @@ class AudioBuffer:
             audio_data = np.frombuffer(chunk, dtype=np.int16)
             self.buffer.extend(audio_data)
 
-    def get_window(self, duration: float, offset: float = 0.0) -> np.ndarray:
+    def get_window(self, duration: float, offset: float = 0.0) -> Any:
         """Get audio window of specified duration"""
         with self.lock:
             samples_needed = int(duration * self.sample_rate)
@@ -290,7 +290,7 @@ class ContinuousListener:
             except Exception as e:
                 self.logger.error(f"Processing error: {e}")
 
-    def _process_audio_window(self, audio_data: np.ndarray) -> Optional[Dict[str, Any]]:
+    def _process_audio_window(self, audio_data: Any) -> Optional[Dict[str, Any]]:
         """Process audio window with Whisper"""
         try:
             # Save to temporary file
@@ -401,7 +401,7 @@ class ContinuousListener:
             except Exception as e:
                 self.logger.error(f"Command callback error: {e}")
 
-    def _save_audio_array(self, audio_data: np.ndarray, filename: str):
+    def _save_audio_array(self, audio_data: Any, filename: str):
         """Save numpy array as WAV file"""
         with wave.open(filename, "wb") as wf:
             wf.setnchannels(self.config.channels)

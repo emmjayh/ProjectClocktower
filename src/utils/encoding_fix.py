@@ -12,6 +12,7 @@ def fix_windows_encoding():
         try:
             # Set console to UTF-8 on Windows
             import subprocess
+
             subprocess.run(["chcp", "65001"], capture_output=True, check=False)
             # Set environment variables for UTF-8
             os.environ["PYTHONIOENCODING"] = "utf-8"

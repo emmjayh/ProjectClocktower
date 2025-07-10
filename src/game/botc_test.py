@@ -407,4 +407,3 @@ async def run_botc_compatibility_test():
 if __name__ == "__main__":
     # Run the compatibility test
     asyncio.run(run_botc_compatibility_test())
-

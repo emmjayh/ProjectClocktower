@@ -6,125 +6,95 @@ on:
       - 'v*'
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          ## 🎭 Blood on the Clocktower AI Storyteller ${{ github.ref }}
-          
-          ### ✨ What's New
-          - See [CHANGELOG.md](CHANGELOG.md) for detailed changes
-          
-          ### 📦 Downloads
-          - **Windows Users**: Download `BloodClockTowerAI-Setup.exe` for easy installation
-          - **Python Users**: Download source code and follow README instructions
-          
-          ### 🚀 Quick Start
-          1. Download and run the Windows installer
-          2. Run `download_models.bat` to download AI models
-          3. Launch the AI Storyteller and connect to your online game
-          4. Start storytelling with voice commands!
-          
-          ### 🎯 System Requirements
-          - Windows 10/11
-          - 4GB RAM minimum
-          - Microphone for voice commands
-          - Internet connection for platform integration
-          
-          ### 🔧 Troubleshooting
-          Check the [README](README.md) for common issues and solutions.
-          
-        draft: false
-        prerelease: false
-
   build-windows:
-    needs: create-release
     runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@v4
     
     - name: Set up Python 3.11
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.11
         
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pyinstaller
+        # Install only core dependencies, skip heavy ML packages for CI
+        pip install requests aiohttp websockets pydantic pillow pyinstaller
         
     - name: Build Windows executable
       run: |
         python build_windows.py
         
-    - name: Create installer
+    - name: Create ZIP of Windows executable
       run: |
-        # Install NSIS if available
-        if (Test-Path "C:\Program Files (x86)\NSIS\makensis.exe") {
-          & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
-        }
+        cd dist
+        # Use PowerShell's Compress-Archive for Windows
+        Compress-Archive -Path "BloodClockTowerAI" -DestinationPath "BloodClockTowerAI-Windows.zip"
         
-    - name: Upload Windows executable
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload Windows build artifact
+      uses: actions/upload-artifact@v4
       with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./dist/BloodClockTowerAI.exe
-        asset_name: BloodClockTowerAI.exe
-        asset_content_type: application/octet-stream
-        
-    - name: Upload Windows installer (if exists)
-      if: success()
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./BloodClockTowerAI_Setup.exe
-        asset_name: BloodClockTowerAI-Setup.exe
-        asset_content_type: application/octet-stream
-      continue-on-error: true
+        name: windows-executable
+        path: dist/BloodClockTowerAI-Windows.zip
+        retention-days: 30
 
-  build-source:
-    needs: create-release
+  create-release:
     runs-on: ubuntu-latest
+    needs: build-windows
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Create source distribution
-      run: |
-        tar -czf ProjectClocktower-source.tar.gz \
-          --exclude='.git' \
-          --exclude='__pycache__' \
-          --exclude='*.pyc' \
-          --exclude='models/' \
-          --exclude='logs/' \
-          --exclude='dist/' \
-          --exclude='build/' \
-          .
-          
-    - name: Upload source distribution
-      uses: actions/upload-release-asset@v1
+    - name: Download Windows build
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-executable
+        path: dist/
+        
+    - name: Create Release with Windows executable
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./ProjectClocktower-source.tar.gz
-        asset_name: ProjectClocktower-source.tar.gz
-        asset_content_type: application/gzip
+      run: |
+        gh release create ${{ github.ref_name }} \
+          --title "Blood on the Clocktower AI Storyteller ${{ github.ref_name }}" \
+          --notes "## Blood on the Clocktower AI Storyteller ${{ github.ref_name }}
+        
+        ### 🎭 Features:
+        - Full AI Storyteller for Blood on the Clocktower
+        - Voice interaction with speech recognition and TTS
+        - Enhanced botc.app platform integration
+        - Complete Trouble Brewing script support
+        - Intelligent decision making for character abilities
+        - Real-time game state management
+        
+        ### 🆕 What's New in ${{ github.ref_name }}:
+        - **Enhanced botc.app Compatibility**: Added specialized BotCAppAdapter for seamless integration
+        - **Improved Connection Handling**: WebSocket with HTTP polling fallback
+        - **Better Error Recovery**: Robust handling of connection failures
+        - **Windows Build Fixes**: Resolved Unicode encoding and PyInstaller dependency issues
+        - **Code Quality**: Fixed all Black, isort, and flake8 formatting issues
+        
+        ### 🔧 Installation:
+        **Windows Users:**
+        1. Download \`BloodClockTowerAI-Windows.zip\`
+        2. Extract to a folder
+        3. Run \`download_models.bat\` first to download AI models
+        4. Run \`BloodClockTowerAI.exe\`
+        
+        **Developers:**
+        \`\`\`bash
+        git clone https://github.com/emmjayh/ProjectClocktower.git
+        cd ProjectClocktower
+        pip install -r requirements.txt
+        python -m src.gui.main_window
+        \`\`\`
+        
+        ### 🎯 System Requirements:
+        - Windows 10/11 (for executable)
+        - Python 3.11 or 3.12 (for source)
+        - Microphone for voice commands (optional)
+        - Speakers/headphones for AI narration (optional)
+        - Internet connection for platform integration" \
+          dist/BloodClockTowerAI-Windows.zip

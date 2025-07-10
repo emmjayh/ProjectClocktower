@@ -6,9 +6,10 @@ Specialized adapter for improving compatibility with botc.app platform
 import asyncio
 import json
 import logging
-import websockets
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+
+import websockets
 
 from .clocktower_api import ClockTowerAPI, GameEvent
 

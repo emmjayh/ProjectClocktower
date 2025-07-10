@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 # Import audio dependencies gracefully
-from .audio_dependencies import pyaudio, whisper, requests
+from .audio_dependencies import pyaudio, requests, whisper
 
 
 @dataclass

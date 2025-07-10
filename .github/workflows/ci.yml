@@ -3,6 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ main, develop ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
 
@@ -61,7 +62,7 @@ jobs:
   build-windows:
     runs-on: windows-latest
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     
     steps:
     - uses: actions/checkout@v4
@@ -87,3 +88,51 @@ jobs:
         name: windows-executable
         path: dist/
         retention-days: 30
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build-windows
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download Windows build
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-executable
+        path: dist/
+        
+    - name: Create ZIP of Windows executable
+      run: |
+        cd dist
+        zip -r BloodClockTowerAI-Windows.zip BloodClockTowerAI/
+        
+    - name: Create Release with Windows executable
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release create ${{ github.ref_name }} \
+          --title "Blood on the Clocktower AI Storyteller ${{ github.ref_name }}" \
+          --notes "## Blood on the Clocktower AI Storyteller ${{ github.ref_name }}
+        
+        🎭 **Features:**
+        - Full AI Storyteller for Blood on the Clocktower
+        - Voice interaction with speech recognition and TTS
+        - Platform integration (clocktower.online, botc.app)
+        - Complete Trouble Brewing script support
+        - Intelligent decision making for character abilities
+        - Real-time game state management
+        
+        🔧 **Installation:**
+        1. Download \`BloodClockTowerAI-Windows.zip\`
+        2. Extract to a folder
+        3. Run \`download_models.bat\` first to download AI models
+        4. Run \`BloodClockTowerAI.exe\`
+        
+        🎯 **System Requirements:**
+        - Windows 10/11
+        - Microphone for voice commands
+        - Speakers/headphones for AI narration
+        - Internet connection for initial model download" \
+          dist/BloodClockTowerAI-Windows.zip

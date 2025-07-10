@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from src.speech.speech_handler import ModelDownloader, SpeechConfig
+# ModelDownloader will be imported after dependencies are installed
 
 # Increase recursion limit to prevent download failures
 sys.setrecursionlimit(5000)
@@ -36,11 +36,29 @@ class ProjectSetup:
             # 2. Install system dependencies
             await self.install_system_deps()
 
-            # 3. Download AI models
-            await self.download_models()
-
-            # 4. Create necessary directories
+            # 3. Create necessary directories
             self.create_directories()
+
+            # 4. Now that dependencies are installed, import and use ModelDownloader
+            logger.info("🤖 Downloading AI models...")
+            from src.speech.speech_handler import ModelDownloader
+            downloader = ModelDownloader(str(self.models_dir))
+            
+            # Download Whisper model
+            logger.info("Downloading Whisper speech recognition model...")
+            await downloader.download_whisper_model("base")
+            
+            # Download TTS voices
+            logger.info("Downloading text-to-speech voices...")
+            voices = ["en_US-lessac-medium", "en_US-amy-medium", "en_US-ryan-medium"]
+            
+            for voice in voices:
+                await downloader.download_piper_voice(voice)
+            
+            # Install Piper TTS
+            await self._install_piper()
+            
+            logger.info("✓ All models downloaded")
 
             # 5. Test installation
             await self.test_installation()
@@ -160,26 +178,8 @@ class ProjectSetup:
             logger.warning(f"⚠️ Failed to install pacman deps: {e}")
 
     async def download_models(self):
-        """Download AI models"""
-        logger.info("🤖 Downloading AI models...")
-
-        downloader = ModelDownloader(str(self.models_dir))
-
-        # Download Whisper model
-        logger.info("Downloading Whisper speech recognition model...")
-        await downloader.download_whisper_model("base")
-
-        # Download TTS voices
-        logger.info("Downloading text-to-speech voices...")
-        voices = ["en_US-lessac-medium", "en_US-amy-medium", "en_US-ryan-medium"]
-
-        for voice in voices:
-            await downloader.download_piper_voice(voice)
-
-        # Install Piper TTS
-        await self._install_piper()
-
-        logger.info("✓ All models downloaded")
+        """Download AI models - no longer used, integrated into setup_everything"""
+        pass
 
     async def _install_piper(self):
         """Install Piper TTS binary"""

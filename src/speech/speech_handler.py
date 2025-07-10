@@ -299,7 +299,7 @@ class ModelDownloader:
         self.logger.info("Installing Piper TTS...")
 
         # Download Piper binary for Linux
-        piper_url = "https://github.com/rhasspy/piper/releases/latest/download/piper_linux_x86_64.tar.gz"
+        piper_url = "https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz"
         piper_dir = self.models_dir / "piper_bin"
         piper_dir.mkdir(exist_ok=True)
 

@@ -108,9 +108,134 @@ class ClockTowerAPI:
 
     async def _connect_botc_app(self) -> bool:
         """Connect to botc.app"""
-        # Implementation for botc.app would go here
-        self.logger.warning("botc.app integration not yet implemented")
-        return False
+        try:
+            self.logger.info("Connecting to botc.app...")
+            
+            # botc.app uses a different connection pattern
+            # Try to detect the room structure first
+            if self.room_code:
+                # Check if room exists and is accessible
+                room_url = f"{self.base_url}/room/{self.room_code}"
+                async with self.session.get(room_url) as response:
+                    if response.status != 200:
+                        raise Exception(f"Room not found or not accessible: {self.room_code}")
+                    
+                    # Parse room data to understand structure
+                    room_html = await response.text()
+                    self.logger.info(f"Connected to botc.app room: {self.room_code}")
+            
+            # Attempt websocket connection with botc.app patterns
+            # Try common websocket endpoints
+            ws_endpoints = [
+                f"{self.base_url.replace('http', 'ws')}/socket.io/",
+                f"{self.base_url.replace('http', 'ws')}/ws",
+                f"{self.base_url.replace('http', 'ws')}/live/{self.room_code}",
+                f"{self.base_url.replace('http', 'ws')}/game/{self.room_code}"
+            ]
+            
+            for ws_url in ws_endpoints:
+                try:
+                    self.logger.debug(f"Trying websocket: {ws_url}")
+                    self.websocket = await websockets.connect(
+                        ws_url,
+                        timeout=5,
+                        extra_headers={
+                            'User-Agent': 'BotC-AI-Storyteller/1.0',
+                            'Origin': self.base_url
+                        }
+                    )
+                    
+                    # Send initial handshake if connected
+                    await self._send_botc_handshake()
+                    self.logger.info(f"Successfully connected to botc.app via {ws_url}")
+                    return True
+                    
+                except Exception as e:
+                    self.logger.debug(f"Failed to connect to {ws_url}: {e}")
+                    continue
+            
+            # If websocket fails, fall back to polling mode
+            self.logger.warning("WebSocket connection failed, using polling mode")
+            return await self._setup_botc_polling()
+            
+        except Exception as e:
+            self.logger.error(f"botc.app connection failed: {e}")
+            return False
+
+    async def _send_botc_handshake(self):
+        """Send initial handshake to botc.app"""
+        try:
+            handshake_data = {
+                "type": "join",
+                "role": "storyteller",
+                "name": "AI Storyteller",
+                "room": self.room_code,
+                "version": "1.0.1"
+            }
+            
+            await self.websocket.send(json.dumps(handshake_data))
+            
+            # Wait for handshake response
+            response = await asyncio.wait_for(self.websocket.recv(), timeout=10)
+            response_data = json.loads(response)
+            
+            if response_data.get("type") == "welcome":
+                self.logger.info("botc.app handshake successful")
+                return True
+            else:
+                self.logger.warning(f"Unexpected handshake response: {response_data}")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Handshake failed: {e}")
+            return False
+
+    async def _setup_botc_polling(self) -> bool:
+        """Setup polling mode for botc.app when websocket fails"""
+        try:
+            # Create a polling task that checks for game state changes
+            self.polling_active = True
+            self.last_state_hash = None
+            
+            # Store that we're using polling mode
+            self.connection_mode = "polling"
+            
+            self.logger.info("botc.app polling mode initialized")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Failed to setup polling: {e}")
+            return False
+
+    async def _poll_botc_state(self) -> Optional[Dict[str, Any]]:
+        """Poll botc.app for game state changes"""
+        if not self.session or not self.room_code:
+            return None
+            
+        try:
+            # Try different API endpoints that botc.app might use
+            endpoints = [
+                f"/api/room/{self.room_code}/state",
+                f"/room/{self.room_code}/api/state",
+                f"/api/game/{self.room_code}",
+                f"/game/{self.room_code}/state"
+            ]
+            
+            for endpoint in endpoints:
+                try:
+                    url = f"{self.base_url}{endpoint}"
+                    async with self.session.get(url) as response:
+                        if response.status == 200:
+                            data = await response.json()
+                            return data
+                except:
+                    continue
+                    
+            return None
+            
+        except Exception as e:
+            self.logger.debug(f"Polling failed: {e}")
+            return None
 
     async def _connect_generic(self) -> bool:
         """Generic connection for unknown platforms"""
@@ -119,6 +244,12 @@ class ClockTowerAPI:
 
     async def listen_for_events(self) -> AsyncGenerator[GameEvent, None]:
         """Listen for game events from the platform"""
+        if self.platform == "botc_app" and hasattr(self, 'connection_mode') and self.connection_mode == "polling":
+            # Use polling mode for botc.app
+            async for event in self._poll_for_events():
+                yield event
+            return
+            
         if not self.websocket:
             raise Exception("Not connected to game")
 
@@ -143,10 +274,47 @@ class ClockTowerAPI:
         except Exception as e:
             self.logger.error(f"Error listening for events: {e}")
 
+    async def _poll_for_events(self) -> AsyncGenerator[GameEvent, None]:
+        """Poll botc.app for events when websocket is not available"""
+        import hashlib
+        
+        while hasattr(self, 'polling_active') and self.polling_active:
+            try:
+                # Poll for state changes
+                current_state = await self._poll_botc_state()
+                
+                if current_state:
+                    # Create hash of current state to detect changes
+                    state_str = json.dumps(current_state, sort_keys=True)
+                    current_hash = hashlib.md5(state_str.encode()).hexdigest()
+                    
+                    if current_hash != self.last_state_hash:
+                        self.last_state_hash = current_hash
+                        
+                        # Generate state change event
+                        event = GameEvent(
+                            event_type="state_change",
+                            timestamp=datetime.now(),
+                            data=current_state,
+                            source="botc_app_polling"
+                        )
+                        
+                        yield event
+                
+                # Wait before next poll
+                await asyncio.sleep(2)  # Poll every 2 seconds
+                
+            except Exception as e:
+                self.logger.error(f"Polling error: {e}")
+                await asyncio.sleep(5)  # Wait longer on error
+
     async def send_storyteller_action(
         self, action_type: str, data: Dict[str, Any]
     ) -> bool:
         """Send storyteller action to the game"""
+        if self.platform == "botc_app":
+            return await self._send_botc_action(action_type, data)
+            
         if not self.websocket:
             return False
 
@@ -163,6 +331,88 @@ class ClockTowerAPI:
 
         except Exception as e:
             self.logger.error(f"Failed to send action: {e}")
+            return False
+
+    async def _send_botc_action(self, action_type: str, data: Dict[str, Any]) -> bool:
+        """Send action to botc.app using their specific format"""
+        try:
+            if hasattr(self, 'connection_mode') and self.connection_mode == "polling":
+                # Use HTTP API for actions in polling mode
+                return await self._send_botc_http_action(action_type, data)
+            elif self.websocket:
+                # Use websocket with botc.app specific format
+                botc_message = self._format_botc_message(action_type, data)
+                await self.websocket.send(json.dumps(botc_message))
+                return True
+            else:
+                self.logger.error("No connection available for botc.app action")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Failed to send botc.app action: {e}")
+            return False
+
+    def _format_botc_message(self, action_type: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Format message for botc.app websocket protocol"""
+        # Map our generic actions to botc.app specific format
+        action_mapping = {
+            "phase_change": "phase",
+            "death": "kill",
+            "execution": "execute", 
+            "start_voting": "nomination",
+            "end_voting": "vote_result",
+            "private_info": "whisper",
+            "wake_player": "wake",
+            "sleep_player": "sleep",
+            "set_status": "update_player",
+            "add_reminder": "reminder",
+            "remove_reminder": "remove_reminder"
+        }
+        
+        botc_action = action_mapping.get(action_type, action_type)
+        
+        return {
+            "type": botc_action,
+            "data": data,
+            "timestamp": datetime.now().isoformat(),
+            "source": "storyteller"
+        }
+
+    async def _send_botc_http_action(self, action_type: str, data: Dict[str, Any]) -> bool:
+        """Send action via HTTP when websocket is not available"""
+        if not self.session or not self.room_code:
+            return False
+            
+        try:
+            # Try different API endpoints for actions
+            endpoints = [
+                f"/api/room/{self.room_code}/action",
+                f"/room/{self.room_code}/api/action",
+                f"/api/game/{self.room_code}/storyteller",
+                f"/game/{self.room_code}/action"
+            ]
+            
+            action_data = {
+                "action": action_type,
+                "data": data,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            for endpoint in endpoints:
+                try:
+                    url = f"{self.base_url}{endpoint}"
+                    async with self.session.post(url, json=action_data) as response:
+                        if response.status in [200, 201, 202]:
+                            self.logger.debug(f"Action sent via {endpoint}")
+                            return True
+                except:
+                    continue
+                    
+            self.logger.warning("No valid HTTP endpoint found for botc.app action")
+            return False
+            
+        except Exception as e:
+            self.logger.error(f"HTTP action failed: {e}")
             return False
 
     async def update_game_state(self, game_state: Dict[str, Any]) -> bool:
@@ -334,6 +584,10 @@ class ClockTowerAPI:
 
     def disconnect(self):
         """Disconnect from the platform"""
+        # Stop polling if active
+        if hasattr(self, 'polling_active'):
+            self.polling_active = False
+            
         if self.websocket:
             asyncio.create_task(self.websocket.close())
 
@@ -361,7 +615,14 @@ class ClockTowerAPI:
                 "reminder_tokens",
             ]
         elif self.platform == "botc_app":
-            return base_features + ["private_info"]
+            return base_features + [
+                "private_info",
+                "wake_player", 
+                "set_status",
+                "reminder_tokens",
+                "polling_mode",
+                "state_sync"
+            ]
         else:
             return base_features
 

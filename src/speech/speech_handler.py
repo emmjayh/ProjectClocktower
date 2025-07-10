@@ -70,7 +70,7 @@ class ModelDownloader:
             self.logger.info(f"Checking Whisper {model_size} model...")
 
             if progress_callback:
-                progress_callback("Checking dependencies...")
+                progress_callback("Checking dependencies...", 0)
 
             # Check if whisper is available
             if whisper is None:
@@ -79,6 +79,10 @@ class ModelDownloader:
                 if progress_callback:
                     progress_callback(f"Error: {error_msg}")
                 return False
+
+            # Show immediate progress
+            if progress_callback:
+                progress_callback("Initializing Whisper download...", 5)
 
             # Whisper models are downloaded automatically by the library
             # Just trigger the download by loading the model
@@ -90,13 +94,13 @@ class ModelDownloader:
                 f"Loading Whisper {model_size} model (downloading if needed)..."
             )
             if progress_callback:
-                progress_callback(f"Downloading Whisper {model_size} model...")
+                progress_callback(f"Loading Whisper {model_size} model (this may take a few minutes)...", 20)
 
             # This will download the model if it doesn't exist
             model = whisper.load_model(model_size, download_root=str(model_path))
 
             if progress_callback:
-                progress_callback("Whisper model ready!")
+                progress_callback("Whisper model ready!", 100)
 
             self.logger.info(f"Whisper {model_size} model ready")
             return True
@@ -116,7 +120,7 @@ class ModelDownloader:
         """Download Piper TTS voice model"""
         try:
             if progress_callback:
-                progress_callback("Checking Piper voice requirements...")
+                progress_callback("Checking Piper voice requirements...", 0)
 
             # Check if requests is available
             if requests is None:
@@ -133,6 +137,9 @@ class ModelDownloader:
                     progress_callback(f"Error: {error_msg}")
                 return False
 
+            if progress_callback:
+                progress_callback("Initializing Piper download...", 10)
+
             voice_info = self.piper_voices[voice_name]
             voice_dir = self.models_dir / "piper" / voice_name
             voice_dir.mkdir(parents=True, exist_ok=True)
@@ -144,22 +151,36 @@ class ModelDownloader:
             if not model_path.exists():
                 self.logger.info(f"Downloading Piper voice model: {voice_name}")
                 if progress_callback:
-                    progress_callback(f"Downloading Piper voice model...")
+                    progress_callback(f"Downloading Piper voice model...", 30)
+                    
+                # Create a wrapper that converts the progress to percentage
+                def model_progress_wrapper(message):
+                    if "%" in message:
+                        try:
+                            percent = float(message.split(":")[1].split("%")[0].strip())
+                            final_percent = 30 + (percent * 0.5)  # 30-80%
+                            progress_callback(message, final_percent)
+                        except:
+                            progress_callback(message, 50)
+                    else:
+                        progress_callback(message, 50)
+                        
                 await self._download_file(
-                    voice_info["url"], model_path, progress_callback
+                    voice_info["url"], model_path, model_progress_wrapper
                 )
 
             # Download config file
             if not config_path.exists():
                 self.logger.info(f"Downloading Piper voice config: {voice_name}")
                 if progress_callback:
-                    progress_callback(f"Downloading Piper voice config...")
+                    progress_callback(f"Downloading Piper voice config...", 85)
                 await self._download_file(
-                    voice_info["config_url"], config_path, progress_callback
+                    voice_info["config_url"], config_path, 
+                    lambda msg: progress_callback(msg, 90)
                 )
 
             if progress_callback:
-                progress_callback("Piper voice ready!")
+                progress_callback("Piper voice ready!", 100)
 
             self.logger.info(f"Piper voice {voice_name} ready")
             return True
@@ -191,9 +212,17 @@ class ModelDownloader:
                         if total_size > 0:
                             progress = (downloaded / total_size) * 100
                             if progress_callback:
-                                progress_callback(
-                                    f"Downloading {path.name}: {progress:.1f}%"
-                                )
+                                # Support both old and new callback formats
+                                try:
+                                    # Try new format with percentage parameter
+                                    progress_callback(
+                                        f"Downloading {path.name}: {progress:.1f}%", progress
+                                    )
+                                except TypeError:
+                                    # Fall back to old format
+                                    progress_callback(
+                                        f"Downloading {path.name}: {progress:.1f}%"
+                                    )
                             else:
                                 print(
                                     f"\rDownloading {path.name}: {progress:.1f}%",
@@ -203,9 +232,15 @@ class ModelDownloader:
                         elif progress_callback:
                             # If no content-length, show bytes downloaded
                             mb_downloaded = downloaded / (1024 * 1024)
-                            progress_callback(
-                                f"Downloading {path.name}: {mb_downloaded:.1f} MB"
-                            )
+                            try:
+                                progress_callback(
+                                    f"Downloading {path.name}: {mb_downloaded:.1f} MB", 
+                                    min(90, mb_downloaded * 10)  # Rough estimate
+                                )
+                            except TypeError:
+                                progress_callback(
+                                    f"Downloading {path.name}: {mb_downloaded:.1f} MB"
+                                )
 
             if not progress_callback:
                 print()  # New line after progress

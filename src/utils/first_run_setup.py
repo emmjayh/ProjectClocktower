@@ -53,11 +53,12 @@ class FirstRunSetupGUI:
         info_text = """Welcome! This is your first time running the AI Storyteller.
         
 We need to download the AI models for:
-• Speech Recognition (Whisper Large) - 2.9GB
+• Speech Recognition (All Whisper models) - ~4GB total
+  - Tiny (39MB), Base (142MB), Small (461MB), Medium (1.5GB), Large (2.9GB)
 • Text-to-Speech (Piper) - ~50MB
 
-This is a one-time download that will take 5-10 minutes depending on your internet speed.
-The large Whisper model provides the highest accuracy for speech recognition."""
+This is a one-time download that will take 5-15 minutes depending on your internet speed.
+Having all models lets you choose the best balance of speed vs. accuracy for your setup."""
 
         info_label = tk.Label(self.root, text=info_text, justify=tk.LEFT)
         info_label.pack(pady=10, padx=40)
@@ -74,9 +75,15 @@ The large Whisper model provides the highest accuracy for speech recognition."""
 
         # Progress bar
         self.progress = ttk.Progressbar(
-            self.progress_frame, mode="indeterminate", length=500
+            self.progress_frame, mode="determinate", length=500, maximum=100
         )
         self.progress.pack(pady=10)
+        
+        # Progress percentage label
+        self.progress_percent_label = tk.Label(
+            self.progress_frame, text="0%", font=("Arial", 12, "bold"), bg="white"
+        )
+        self.progress_percent_label.pack(pady=5)
 
         # Log text
         self.log_frame = tk.Frame(self.root)
@@ -97,7 +104,7 @@ The large Whisper model provides the highest accuracy for speech recognition."""
 
         self.download_btn = tk.Button(
             button_frame,
-            text="Download Models",
+            text="Start Download",
             command=self.start_download,
             bg="#4CAF50",
             fg="white",
@@ -106,6 +113,9 @@ The large Whisper model provides the highest accuracy for speech recognition."""
             pady=10,
         )
         self.download_btn.pack(side=tk.LEFT, padx=10)
+        
+        # Auto-start download after a short delay
+        self.root.after(2000, self.auto_start_download)
 
         self.skip_btn = tk.Button(
             button_frame,
@@ -132,12 +142,23 @@ The large Whisper model provides the highest accuracy for speech recognition."""
         else:
             self.root.destroy()
 
+    def auto_start_download(self):
+        """Auto-start download after delay"""
+        if not self.downloading:
+            self.status_label.config(text="Starting automatic download...")
+            self.download_btn.config(text="Downloading...")
+            self.root.after(1000, self.start_download)  # 1 second delay
+    
     def start_download(self):
         """Start the download process"""
+        if self.downloading:
+            return
+            
         self.downloading = True
-        self.download_btn.config(state=tk.DISABLED)
+        self.download_btn.config(state=tk.DISABLED, text="Downloading...")
         self.skip_btn.config(state=tk.DISABLED)
-        self.progress.start(10)
+        self.progress["value"] = 0
+        self.progress_percent_label.config(text="0%")
 
         # Run download in background thread
         thread = threading.Thread(target=self.download_models)
@@ -154,43 +175,66 @@ The large Whisper model provides the highest accuracy for speech recognition."""
             self.root.after(0, self.log, "📥 Starting model downloads...")
 
             # Create progress callback that updates the GUI
-            def progress_callback(message):
+            def progress_callback(message, percent=None):
                 self.root.after(0, self.log, message)
                 self.root.after(0, self.status_label.config, {"text": message})
+                
+                if percent is not None:
+                    self.root.after(0, self.progress.config, {"value": percent})
+                    self.root.after(0, self.progress_percent_label.config, {"text": f"{percent:.1f}%"})
 
-            # Download Whisper
+            # Download all Whisper models
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
 
-            self.root.after(
-                0,
-                self.log,
-                "📥 Downloading Whisper speech recognition model (large - high accuracy)...",
-            )
-            success = loop.run_until_complete(
-                self.downloader.download_whisper_model("large", progress_callback)
-            )
+            # Show immediate progress
+            progress_callback("🔄 Initializing Whisper downloads...", 5)
+            
+            whisper_models = ["tiny", "base", "small", "medium", "large"]
+            model_sizes = {"tiny": "39MB", "base": "142MB", "small": "461MB", "medium": "1.5GB", "large": "2.9GB"}
+            
+            self.root.after(0, self.log, "📥 Downloading all Whisper speech recognition models...")
+            
+            for i, model in enumerate(whisper_models):
+                base_progress = 10 + (i * 15)  # 10, 25, 40, 55, 70
+                
+                progress_callback(f"📥 Downloading Whisper {model} model ({model_sizes[model]})...", base_progress)
+                self.root.after(0, self.log, f"📥 Downloading Whisper {model} model ({model_sizes[model]})...")
+                
+                success = loop.run_until_complete(
+                    self.downloader.download_whisper_model(model, 
+                        lambda msg, p=None, base=base_progress: progress_callback(msg, min(base+12, base + (p or 0) * 0.12) if p else None))
+                )
 
-            if not success:
-                raise Exception("Failed to download Whisper model")
+                if not success:
+                    raise Exception(f"Failed to download Whisper {model} model")
 
-            self.root.after(0, self.log, "✅ Whisper model downloaded successfully!")
+                progress_callback(f"✅ Whisper {model} model downloaded!", base_progress + 12)
+                self.root.after(0, self.log, f"✅ Whisper {model} model downloaded!")
+
+            progress_callback("✅ All Whisper models downloaded successfully!", 80)
+            self.root.after(0, self.log, "✅ All Whisper models downloaded successfully!")
 
             # Download Piper
+            progress_callback("📥 Starting Piper voice download...", 85)
             self.root.after(0, self.log, "📥 Downloading Piper text-to-speech voice...")
+            
             success = loop.run_until_complete(
                 self.downloader.download_piper_voice(
-                    "en_US-lessac-medium", progress_callback
+                    "en_US-lessac-medium", 
+                    lambda msg, p=None: progress_callback(msg, min(95, 85 + (p or 0) * 0.1) if p else None)
                 )
             )
 
             if not success:
                 raise Exception("Failed to download Piper voice")
 
+            progress_callback("✅ Piper voice downloaded successfully!", 95)
             self.root.after(0, self.log, "✅ Piper voice downloaded successfully!")
 
             # Mark as complete
             self.mark_setup_complete()
+            progress_callback("🎉 Setup complete!", 100)
 
             # Success
             self.root.after(0, self.download_complete)
@@ -201,13 +245,15 @@ The large Whisper model provides the highest accuracy for speech recognition."""
     def download_complete(self):
         """Handle successful download"""
         self.downloading = False
-        self.progress.stop()
+        self.progress["value"] = 100
+        self.progress_percent_label.config(text="100%")
         self.status_label.config(text="✅ Download complete!")
         self.log("🎉 All models downloaded successfully!")
         self.log("You can now close this window and the AI Storyteller will start.")
 
         self.download_btn.config(
-            text="Close", state=tk.NORMAL, command=self.root.destroy
+            text="Close & Start AI", state=tk.NORMAL, command=self.root.destroy,
+            bg="#27ae60"
         )
 
     def download_failed(self, error: str):

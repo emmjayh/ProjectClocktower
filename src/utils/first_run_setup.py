@@ -225,17 +225,22 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
                         self.downloader.download_whisper_model(
                             model,
                             lambda msg, p=None, base=base_progress: progress_callback(
-                                msg, min(base + 12, base + (p or 0) * 0.12) if p else None
+                                msg,
+                                min(base + 12, base + (p or 0) * 0.12) if p else None,
                             ),
                         )
                     )
 
                     if not success:
-                        self.root.after(0, self.log, f"❌ Failed to download {model} model")
+                        self.root.after(
+                            0, self.log, f"❌ Failed to download {model} model"
+                        )
                         # Continue with other models
                         continue
                 except Exception as e:
-                    self.root.after(0, self.log, f"❌ Error downloading {model} model: {str(e)}")
+                    self.root.after(
+                        0, self.log, f"❌ Error downloading {model} model: {str(e)}"
+                    )
                     # Continue with other models
                     continue
 

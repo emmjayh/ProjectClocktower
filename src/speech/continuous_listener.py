@@ -59,7 +59,7 @@ class ListenerConfig:
     )
 
     # Processing settings
-    whisper_model: str = "base"
+    whisper_model: str = "large"
     confidence_threshold: float = 0.7
 
 

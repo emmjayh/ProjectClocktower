@@ -324,7 +324,7 @@ class MainWindow:
         ttk.Label(speech_settings, text="Whisper Model:").grid(
             row=0, column=0, sticky=tk.W, padx=5, pady=5
         )
-        self.whisper_model_var = tk.StringVar(value="base")
+        self.whisper_model_var = tk.StringVar(value="large")
         whisper_combo = ttk.Combobox(
             speech_settings,
             textvariable=self.whisper_model_var,
@@ -620,7 +620,7 @@ class MainWindow:
 
                 self.script_var.set(setup_data.get("script", "trouble_brewing"))
                 self.voice_var.set(setup_data.get("voice", "en_US-lessac-medium"))
-                self.whisper_model_var.set(setup_data.get("whisper_model", "base"))
+                self.whisper_model_var.set(setup_data.get("whisper_model", "large"))
                 self.threshold_var.set(setup_data.get("threshold", 0.01))
                 self.complexity_var.set(setup_data.get("complexity", "Medium"))
                 self.auto_mode_var.set(setup_data.get("auto_mode", True))

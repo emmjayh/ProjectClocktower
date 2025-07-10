@@ -53,10 +53,11 @@ class FirstRunSetupGUI:
         info_text = """Welcome! This is your first time running the AI Storyteller.
         
 We need to download the AI models for:
-• Speech Recognition (Whisper) - 142MB
+• Speech Recognition (Whisper Large) - 2.9GB
 • Text-to-Speech (Piper) - ~50MB
 
-This is a one-time download that will take a few minutes."""
+This is a one-time download that will take 5-10 minutes depending on your internet speed.
+The large Whisper model provides the highest accuracy for speech recognition."""
 
         info_label = tk.Label(self.root, text=info_text, justify=tk.LEFT)
         info_label.pack(pady=10, padx=40)
@@ -148,17 +149,26 @@ This is a one-time download that will take a few minutes."""
         try:
             # Update status
             self.root.after(
-                0, self.status_label.config, {"text": "Downloading Whisper model..."}
+                0, self.status_label.config, {"text": "Starting download..."}
             )
-            self.root.after(
-                0, self.log, "📥 Downloading Whisper speech recognition model..."
-            )
+            self.root.after(0, self.log, "📥 Starting model downloads...")
+
+            # Create progress callback that updates the GUI
+            def progress_callback(message):
+                self.root.after(0, self.log, message)
+                self.root.after(0, self.status_label.config, {"text": message})
 
             # Download Whisper
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
+
+            self.root.after(
+                0,
+                self.log,
+                "📥 Downloading Whisper speech recognition model (large - high accuracy)...",
+            )
             success = loop.run_until_complete(
-                self.downloader.download_whisper_model("base")
+                self.downloader.download_whisper_model("large", progress_callback)
             )
 
             if not success:
@@ -166,15 +176,12 @@ This is a one-time download that will take a few minutes."""
 
             self.root.after(0, self.log, "✅ Whisper model downloaded successfully!")
 
-            # Update status
-            self.root.after(
-                0, self.status_label.config, {"text": "Downloading Piper voice..."}
-            )
-            self.root.after(0, self.log, "📥 Downloading Piper text-to-speech voice...")
-
             # Download Piper
+            self.root.after(0, self.log, "📥 Downloading Piper text-to-speech voice...")
             success = loop.run_until_complete(
-                self.downloader.download_piper_voice("en_US-lessac-medium")
+                self.downloader.download_piper_voice(
+                    "en_US-lessac-medium", progress_callback
+                )
             )
 
             if not success:
@@ -252,7 +259,7 @@ def check_first_run() -> bool:
 
     # Also check if models exist
     models_dir = Path("models")
-    whisper_exists = (models_dir / "whisper_base").exists()
+    whisper_exists = (models_dir / "whisper_large").exists()
     piper_exists = (
         models_dir / "piper" / "en_US-lessac-medium" / "en_US-lessac-medium.onnx"
     ).exists()

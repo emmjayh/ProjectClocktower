@@ -20,7 +20,7 @@ from .audio_dependencies import pyaudio, requests, whisper
 
 @dataclass
 class SpeechConfig:
-    whisper_model: str = "base"
+    whisper_model: str = "large"
     tts_voice: str = "en_US-lessac-medium"
     sample_rate: int = 16000
     chunk_size: int = 1024
@@ -62,10 +62,23 @@ class ModelDownloader:
             },
         }
 
-    async def download_whisper_model(self, model_size: str = "base") -> bool:
+    async def download_whisper_model(
+        self, model_size: str = "base", progress_callback: callable = None
+    ) -> bool:
         """Download Whisper model if not exists"""
         try:
             self.logger.info(f"Checking Whisper {model_size} model...")
+
+            if progress_callback:
+                progress_callback("Checking dependencies...")
+
+            # Check if whisper is available
+            if whisper is None:
+                error_msg = "Whisper library not available - install with: pip install openai-whisper"
+                self.logger.error(error_msg)
+                if progress_callback:
+                    progress_callback(f"Error: {error_msg}")
+                return False
 
             # Whisper models are downloaded automatically by the library
             # Just trigger the download by loading the model
@@ -76,25 +89,48 @@ class ModelDownloader:
             self.logger.info(
                 f"Loading Whisper {model_size} model (downloading if needed)..."
             )
-            if whisper is not None:
-                whisper.load_model(model_size, download_root=str(model_path))
-            else:
-                self.logger.warning("Whisper not available - skipping model download")
+            if progress_callback:
+                progress_callback(f"Downloading Whisper {model_size} model...")
+
+            # This will download the model if it doesn't exist
+            model = whisper.load_model(model_size, download_root=str(model_path))
+
+            if progress_callback:
+                progress_callback("Whisper model ready!")
 
             self.logger.info(f"Whisper {model_size} model ready")
             return True
 
         except Exception as e:
-            self.logger.error(f"Failed to download Whisper model: {e}")
+            error_msg = f"Failed to download Whisper model: {e}"
+            self.logger.error(error_msg)
+            if progress_callback:
+                progress_callback(f"Error: {error_msg}")
             return False
 
     async def download_piper_voice(
-        self, voice_name: str = "en_US-lessac-medium"
+        self,
+        voice_name: str = "en_US-lessac-medium",
+        progress_callback: callable = None,
     ) -> bool:
         """Download Piper TTS voice model"""
         try:
+            if progress_callback:
+                progress_callback("Checking Piper voice requirements...")
+
+            # Check if requests is available
+            if requests is None:
+                error_msg = "Requests library not available - install with: pip install requests"
+                self.logger.error(error_msg)
+                if progress_callback:
+                    progress_callback(f"Error: {error_msg}")
+                return False
+
             if voice_name not in self.piper_voices:
-                self.logger.error(f"Unknown voice: {voice_name}")
+                error_msg = f"Unknown voice: {voice_name}"
+                self.logger.error(error_msg)
+                if progress_callback:
+                    progress_callback(f"Error: {error_msg}")
                 return False
 
             voice_info = self.piper_voices[voice_name]
@@ -107,43 +143,80 @@ class ModelDownloader:
             # Download model file
             if not model_path.exists():
                 self.logger.info(f"Downloading Piper voice model: {voice_name}")
-                await self._download_file(voice_info["url"], model_path)
+                if progress_callback:
+                    progress_callback(f"Downloading Piper voice model...")
+                await self._download_file(
+                    voice_info["url"], model_path, progress_callback
+                )
 
             # Download config file
             if not config_path.exists():
                 self.logger.info(f"Downloading Piper voice config: {voice_name}")
-                await self._download_file(voice_info["config_url"], config_path)
+                if progress_callback:
+                    progress_callback(f"Downloading Piper voice config...")
+                await self._download_file(
+                    voice_info["config_url"], config_path, progress_callback
+                )
+
+            if progress_callback:
+                progress_callback("Piper voice ready!")
 
             self.logger.info(f"Piper voice {voice_name} ready")
             return True
 
         except Exception as e:
-            self.logger.error(f"Failed to download Piper voice: {e}")
+            error_msg = f"Failed to download Piper voice: {e}"
+            self.logger.error(error_msg)
+            if progress_callback:
+                progress_callback(f"Error: {error_msg}")
             return False
 
-    async def _download_file(self, url: str, path: Path) -> None:
+    async def _download_file(
+        self, url: str, path: Path, progress_callback: callable = None
+    ) -> None:
         """Download file with progress"""
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
+        try:
+            response = requests.get(url, stream=True, timeout=30)
+            response.raise_for_status()
 
-        total_size = int(response.headers.get("content-length", 0))
-        downloaded = 0
+            total_size = int(response.headers.get("content-length", 0))
+            downloaded = 0
 
-        with open(path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    downloaded += len(chunk)
+            with open(path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
 
-                    if total_size > 0:
-                        progress = (downloaded / total_size) * 100
-                        print(
-                            f"\rDownloading {path.name}: {progress:.1f}%",
-                            end="",
-                            flush=True,
-                        )
+                        if total_size > 0:
+                            progress = (downloaded / total_size) * 100
+                            if progress_callback:
+                                progress_callback(
+                                    f"Downloading {path.name}: {progress:.1f}%"
+                                )
+                            else:
+                                print(
+                                    f"\rDownloading {path.name}: {progress:.1f}%",
+                                    end="",
+                                    flush=True,
+                                )
+                        elif progress_callback:
+                            # If no content-length, show bytes downloaded
+                            mb_downloaded = downloaded / (1024 * 1024)
+                            progress_callback(
+                                f"Downloading {path.name}: {mb_downloaded:.1f} MB"
+                            )
 
-        print()  # New line after progress
+            if not progress_callback:
+                print()  # New line after progress
+
+        except Exception as e:
+            error_msg = f"Download failed for {url}: {e}"
+            if progress_callback:
+                progress_callback(f"Error: {error_msg}")
+            else:
+                print(f"Error: {error_msg}")
+            raise
 
     async def install_dependencies(self) -> bool:
         """Install required system dependencies"""

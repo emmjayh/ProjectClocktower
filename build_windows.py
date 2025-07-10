@@ -179,7 +179,7 @@ coll = COLLECT(
 '''
         
         spec_file = self.project_root / "bloodclocktower.spec"
-        with open(spec_file, 'w') as f:
+        with open(spec_file, 'w', encoding='utf-8') as f:
             f.write(spec_content)
             
         safe_print("✓ Created PyInstaller spec file")
@@ -213,7 +213,7 @@ coll = COLLECT(
         
         # Create download script for models
         download_script = exe_dir / "download_models.bat"
-        with open(download_script, 'w') as f:
+        with open(download_script, 'w', encoding='utf-8') as f:
             f.write('''@echo off
 echo Downloading AI models for Blood on the Clocktower...
 echo This may take several minutes depending on your internet connection.
@@ -238,23 +238,23 @@ powershell -Command "Invoke-WebRequest -Uri 'https://huggingface.co/rhasspy/pipe
 powershell -Command "Invoke-WebRequest -Uri 'https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json' -OutFile 'models\\piper\\en_US-lessac-medium\\en_US-lessac-medium.onnx.json'"
 
 echo.
-echo ✅ Model download complete!
+echo [OK] Model download complete!
 echo You can now run BloodClockTowerAI.exe
 pause
 ''')
         
         # Create README for Windows
         readme_file = exe_dir / "README.txt"
-        with open(readme_file, 'w') as f:
+        with open(readme_file, 'w', encoding='utf-8') as f:
             f.write('''Blood on the Clocktower AI Agent - Windows Version
 
-🎭 FIRST TIME SETUP:
+[GAME] FIRST TIME SETUP:
 1. Run "download_models.bat" FIRST to download AI models
    (This downloads speech recognition and text-to-speech models)
    
 2. After models download, run "BloodClockTowerAI.exe"
 
-🎮 HOW TO USE:
+[GAME] HOW TO USE:
 - Enter player names in the Setup tab (one per line)
 - Choose your script (Trouble Brewing recommended for beginners)
 - Select storyteller voice
@@ -262,19 +262,19 @@ pause
 - Use the Game Control tab to manage phases
 - The AI will guide you through the game!
 
-🔧 TROUBLESHOOTING:
+[CONFIG] TROUBLESHOOTING:
 - If audio doesn't work, check Windows sound settings
 - Make sure microphone permissions are enabled
 - For best results, use a quiet room
 - If speech recognition fails, use manual text input
 
-📝 CONTROLS:
+[NOTE] CONTROLS:
 - Speech recognition listens automatically during game
 - Use manual text input if voice commands don't work
 - Game log shows all actions and events
 - Players tab shows current game state
 
-🎯 REQUIREMENTS:
+[TARGET] REQUIREMENTS:
 - Windows 10/11
 - Microphone for voice commands
 - Speakers/headphones for AI narration
@@ -363,13 +363,13 @@ SectionEnd
 '''
         
         nsis_file = self.project_root / "installer.nsi"
-        with open(nsis_file, 'w') as f:
+        with open(nsis_file, 'w', encoding='utf-8') as f:
             f.write(nsis_script)
             
     def create_dev_script(self):
         """Create development script for easy testing"""
         dev_script = self.project_root / "run_dev.bat"
-        with open(dev_script, 'w') as f:
+        with open(dev_script, 'w', encoding='utf-8') as f:
             f.write('''@echo off
 echo Starting Blood on the Clocktower AI Agent (Development Mode)
 cd /d "%~dp0"

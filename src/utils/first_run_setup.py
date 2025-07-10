@@ -78,7 +78,7 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
             self.progress_frame, mode="determinate", length=500, maximum=100
         )
         self.progress.pack(pady=10)
-        
+
         # Progress percentage label
         self.progress_percent_label = tk.Label(
             self.progress_frame, text="0%", font=("Arial", 12, "bold"), bg="white"
@@ -113,7 +113,7 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
             pady=10,
         )
         self.download_btn.pack(side=tk.LEFT, padx=10)
-        
+
         # Auto-start download after a short delay
         self.root.after(2000, self.auto_start_download)
 
@@ -148,12 +148,12 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
             self.status_label.config(text="Starting automatic download...")
             self.download_btn.config(text="Downloading...")
             self.root.after(1000, self.start_download)  # 1 second delay
-    
+
     def start_download(self):
         """Start the download process"""
         if self.downloading:
             return
-            
+
         self.downloading = True
         self.download_btn.config(state=tk.DISABLED, text="Downloading...")
         self.skip_btn.config(state=tk.DISABLED)
@@ -178,10 +178,14 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
             def progress_callback(message, percent=None):
                 self.root.after(0, self.log, message)
                 self.root.after(0, self.status_label.config, {"text": message})
-                
+
                 if percent is not None:
                     self.root.after(0, self.progress.config, {"value": percent})
-                    self.root.after(0, self.progress_percent_label.config, {"text": f"{percent:.1f}%"})
+                    self.root.after(
+                        0,
+                        self.progress_percent_label.config,
+                        {"text": f"{percent:.1f}%"},
+                    )
 
             # Download all Whisper models
             loop = asyncio.new_event_loop()
@@ -189,40 +193,65 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
 
             # Show immediate progress
             progress_callback("🔄 Initializing Whisper downloads...", 5)
-            
+
             whisper_models = ["tiny", "base", "small", "medium", "large"]
-            model_sizes = {"tiny": "39MB", "base": "142MB", "small": "461MB", "medium": "1.5GB", "large": "2.9GB"}
-            
-            self.root.after(0, self.log, "📥 Downloading all Whisper speech recognition models...")
-            
+            model_sizes = {
+                "tiny": "39MB",
+                "base": "142MB",
+                "small": "461MB",
+                "medium": "1.5GB",
+                "large": "2.9GB",
+            }
+
+            self.root.after(
+                0, self.log, "📥 Downloading all Whisper speech recognition models..."
+            )
+
             for i, model in enumerate(whisper_models):
                 base_progress = 10 + (i * 15)  # 10, 25, 40, 55, 70
-                
-                progress_callback(f"📥 Downloading Whisper {model} model ({model_sizes[model]})...", base_progress)
-                self.root.after(0, self.log, f"📥 Downloading Whisper {model} model ({model_sizes[model]})...")
-                
+
+                progress_callback(
+                    f"📥 Downloading Whisper {model} model ({model_sizes[model]})...",
+                    base_progress,
+                )
+                self.root.after(
+                    0,
+                    self.log,
+                    f"📥 Downloading Whisper {model} model ({model_sizes[model]})...",
+                )
+
                 success = loop.run_until_complete(
-                    self.downloader.download_whisper_model(model, 
-                        lambda msg, p=None, base=base_progress: progress_callback(msg, min(base+12, base + (p or 0) * 0.12) if p else None))
+                    self.downloader.download_whisper_model(
+                        model,
+                        lambda msg, p=None, base=base_progress: progress_callback(
+                            msg, min(base + 12, base + (p or 0) * 0.12) if p else None
+                        ),
+                    )
                 )
 
                 if not success:
                     raise Exception(f"Failed to download Whisper {model} model")
 
-                progress_callback(f"✅ Whisper {model} model downloaded!", base_progress + 12)
+                progress_callback(
+                    f"✅ Whisper {model} model downloaded!", base_progress + 12
+                )
                 self.root.after(0, self.log, f"✅ Whisper {model} model downloaded!")
 
             progress_callback("✅ All Whisper models downloaded successfully!", 80)
-            self.root.after(0, self.log, "✅ All Whisper models downloaded successfully!")
+            self.root.after(
+                0, self.log, "✅ All Whisper models downloaded successfully!"
+            )
 
             # Download Piper
             progress_callback("📥 Starting Piper voice download...", 85)
             self.root.after(0, self.log, "📥 Downloading Piper text-to-speech voice...")
-            
+
             success = loop.run_until_complete(
                 self.downloader.download_piper_voice(
-                    "en_US-lessac-medium", 
-                    lambda msg, p=None: progress_callback(msg, min(95, 85 + (p or 0) * 0.1) if p else None)
+                    "en_US-lessac-medium",
+                    lambda msg, p=None: progress_callback(
+                        msg, min(95, 85 + (p or 0) * 0.1) if p else None
+                    ),
                 )
             )
 
@@ -252,8 +281,10 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
         self.log("You can now close this window and the AI Storyteller will start.")
 
         self.download_btn.config(
-            text="Close & Start AI", state=tk.NORMAL, command=self.root.destroy,
-            bg="#27ae60"
+            text="Close & Start AI",
+            state=tk.NORMAL,
+            command=self.root.destroy,
+            bg="#27ae60",
         )
 
     def download_failed(self, error: str):

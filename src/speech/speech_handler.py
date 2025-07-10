@@ -94,7 +94,10 @@ class ModelDownloader:
                 f"Loading Whisper {model_size} model (downloading if needed)..."
             )
             if progress_callback:
-                progress_callback(f"Loading Whisper {model_size} model (this may take a few minutes)...", 20)
+                progress_callback(
+                    f"Loading Whisper {model_size} model (this may take a few minutes)...",
+                    20,
+                )
 
             # This will download the model if it doesn't exist
             model = whisper.load_model(model_size, download_root=str(model_path))
@@ -152,7 +155,7 @@ class ModelDownloader:
                 self.logger.info(f"Downloading Piper voice model: {voice_name}")
                 if progress_callback:
                     progress_callback(f"Downloading Piper voice model...", 30)
-                    
+
                 # Create a wrapper that converts the progress to percentage
                 def model_progress_wrapper(message):
                     if "%" in message:
@@ -164,7 +167,7 @@ class ModelDownloader:
                             progress_callback(message, 50)
                     else:
                         progress_callback(message, 50)
-                        
+
                 await self._download_file(
                     voice_info["url"], model_path, model_progress_wrapper
                 )
@@ -175,8 +178,9 @@ class ModelDownloader:
                 if progress_callback:
                     progress_callback(f"Downloading Piper voice config...", 85)
                 await self._download_file(
-                    voice_info["config_url"], config_path, 
-                    lambda msg: progress_callback(msg, 90)
+                    voice_info["config_url"],
+                    config_path,
+                    lambda msg: progress_callback(msg, 90),
                 )
 
             if progress_callback:
@@ -216,7 +220,8 @@ class ModelDownloader:
                                 try:
                                     # Try new format with percentage parameter
                                     progress_callback(
-                                        f"Downloading {path.name}: {progress:.1f}%", progress
+                                        f"Downloading {path.name}: {progress:.1f}%",
+                                        progress,
                                     )
                                 except TypeError:
                                     # Fall back to old format
@@ -234,8 +239,8 @@ class ModelDownloader:
                             mb_downloaded = downloaded / (1024 * 1024)
                             try:
                                 progress_callback(
-                                    f"Downloading {path.name}: {mb_downloaded:.1f} MB", 
-                                    min(90, mb_downloaded * 10)  # Rough estimate
+                                    f"Downloading {path.name}: {mb_downloaded:.1f} MB",
+                                    min(90, mb_downloaded * 10),  # Rough estimate
                                 )
                             except TypeError:
                                 progress_callback(

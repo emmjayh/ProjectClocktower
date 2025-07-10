@@ -114,41 +114,46 @@ jobs:
         echo "Contents of dist directory:"
         ls -la dist/
         
-    - name: Upload Windows executable to Release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create Release Notes
       run: |
-        # Check if release exists, create if not
-        if ! gh release view ${{ github.ref_name }} 2>/dev/null; then
-          echo "Creating new release..."
-          gh release create ${{ github.ref_name }} \
-            --title "Blood on the Clocktower AI Storyteller ${{ github.ref_name }}" \
-            --notes "## Blood on the Clocktower AI Storyteller ${{ github.ref_name }}
+        cat > release_notes.md << 'EOF'
+        ## Blood on the Clocktower AI Storyteller ${{ github.ref_name }}
         
-        🎭 **Features:**
+        ### 🎭 Features:
         - Full AI Storyteller for Blood on the Clocktower
         - Voice interaction with speech recognition and TTS
-        - Platform integration (clocktower.online, botc.app)
+        - Enhanced botc.app platform integration
         - Complete Trouble Brewing script support
         - Intelligent decision making for character abilities
         - Real-time game state management
         
-        🔧 **Installation:**
-        1. Download \`BloodClockTowerAI-Windows.zip\`
+        ### 🔧 Installation:
+        1. Download `BloodClockTowerAI-Windows.zip`
         2. Extract to a folder
-        3. Run \`download_models.bat\` first to download AI models
-        4. Run \`BloodClockTowerAI.exe\`
+        3. Run `download_models.bat` first to download AI models
+        4. Run `BloodClockTowerAI.exe`
         
-        🎯 **System Requirements:**
+        ### 🎯 System Requirements:
         - Windows 10/11
         - Microphone for voice commands
         - Speakers/headphones for AI narration
-        - Internet connection for initial model download"
-        else
-          echo "Release already exists, uploading assets..."
-        fi
+        - Internet connection for initial model download
         
-        # Upload the Windows executable
-        echo "Uploading Windows executable..."
-        gh release upload ${{ github.ref_name }} dist/BloodClockTowerAI-Windows.zip \
-          --clobber
+        For more information, see the [README](https://github.com/emmjayh/ProjectClocktower/blob/main/README.md).
+        EOF
+        
+    - name: Create or Update Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Try to create release
+        if gh release create ${{ github.ref_name }} \
+          --title "Blood on the Clocktower AI Storyteller ${{ github.ref_name }}" \
+          --notes-file release_notes.md \
+          dist/BloodClockTowerAI-Windows.zip; then
+          echo "Release created successfully"
+        else
+          # If creation fails, try to upload to existing release
+          echo "Release creation failed, trying to upload to existing release..."
+          gh release upload ${{ github.ref_name }} dist/BloodClockTowerAI-Windows.zip --clobber
+        fi

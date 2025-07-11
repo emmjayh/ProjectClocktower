@@ -75,20 +75,12 @@ class ModelDownloader:
             if progress_callback:
                 progress_callback("Checking dependencies...", 0)
 
-            # Check if whisper is available - try to import it fresh
-            try:
-                import whisper as whisper_module
+            # For downloads, we don't need whisper to be installed yet
+            # We'll just download the model files directly
+            whisper_available = True  # Assume available for download purposes
 
-                whisper_available = True
-            except ImportError:
-                whisper_available = False
-
-            if not whisper_available:
-                error_msg = "Whisper library not available - install with: pip install openai-whisper"
-                self.logger.error(error_msg)
-                if progress_callback:
-                    progress_callback(f"Error: {error_msg}")
-                return False
+            if progress_callback:
+                progress_callback("Starting model download...", 1)
 
             # Validate model size
             valid_models = [
@@ -201,17 +193,28 @@ class ModelDownloader:
                     f"Failed to download {model_size} model from all sources"
                 )
             else:
-                # Fallback to whisper.load_model for other models
-                self.logger.info(f"Using whisper.load_model for {model_size}")
-                if progress_callback:
-                    progress_callback(f"Loading {model_size} model...", 50)
+                # No direct download URL available, try whisper.load_model fallback
+                try:
+                    import whisper as whisper_module
 
-                whisper_module.load_model(model_size)
+                    self.logger.info(f"Using whisper.load_model for {model_size}")
+                    if progress_callback:
+                        progress_callback(f"Loading {model_size} model...", 50)
 
-                if progress_callback:
-                    progress_callback("Whisper model ready!", 100)
+                    whisper_module.load_model(model_size)
 
-                return True
+                    if progress_callback:
+                        progress_callback("Whisper model ready!", 100)
+
+                    return True
+                except ImportError:
+                    error_msg = (
+                        f"Cannot download {model_size} model - whisper not installed"
+                    )
+                    self.logger.error(error_msg)
+                    if progress_callback:
+                        progress_callback(f"Error: {error_msg}")
+                    return False
 
         except Exception as e:
             error_msg = f"Failed to download Whisper model: {e}"

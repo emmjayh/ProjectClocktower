@@ -75,36 +75,20 @@ class ModelDownloader:
             if progress_callback:
                 progress_callback("Checking dependencies...", 0)
 
-            # Check if whisper is available
-            if whisper is None:
+            # Check if whisper is available - try to import it fresh
+            try:
+                import whisper as whisper_module
+
+                whisper_available = True
+            except ImportError:
+                whisper_available = False
+
+            if not whisper_available:
                 error_msg = "Whisper library not available - install with: pip install openai-whisper"
                 self.logger.error(error_msg)
                 if progress_callback:
                     progress_callback(f"Error: {error_msg}")
                 return False
-
-            # Show immediate progress
-            if progress_callback:
-                progress_callback("Initializing Whisper download...", 5)
-
-            # Whisper models are downloaded automatically by the library
-            # Just trigger the download by loading the model
-            model_path = self.models_dir / f"whisper_{model_size}"
-            model_path.mkdir(exist_ok=True)
-
-            # Test load to trigger download
-            self.logger.info(
-                f"Loading Whisper {model_size} model (downloading if needed)..."
-            )
-            if progress_callback:
-                progress_callback(
-                    f"Loading Whisper {model_size} model (this may take a few minutes)...",
-                    20,
-                )
-
-            # This will download the model if it doesn't exist
-            self.logger.info(f"Attempting to load Whisper model: {model_size}")
-            self.logger.info(f"Download root: {model_path}")
 
             # Validate model size
             valid_models = [
@@ -123,35 +107,55 @@ class ModelDownloader:
                     f"Invalid model size: {model_size}. Valid options: {valid_models}"
                 )
 
-            # Try downloading with retry logic
-            max_retries = 3
-            for attempt in range(max_retries):
-                try:
-                    if progress_callback:
-                        progress_callback(
-                            f"Loading {model_size} model (attempt {attempt + 1}/{max_retries})...",
-                            20 + (attempt * 20),
-                        )
+            # Get model URL and expected size
+            model_urls = {
+                "tiny": "https://openaipublic.azureedge.net/main/whisper/models/65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9/tiny.pt",
+                "base": "https://openaipublic.azureedge.net/main/whisper/models/ed3a0b6b1c0edf879ad9b11b1af5a0e6ab5db9205f891f668f8b0e6c6326e34e/base.pt",
+                "small": "https://openaipublic.azureedge.net/main/whisper/models/9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt",
+                "medium": "https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt",
+                "large": "https://openaipublic.azureedge.net/main/whisper/models/e4b87e7e0bf463eb8e6956e646f1e277e901512310def2c24bf0e11bd3c28e9a/large.pt",
+            }
 
-                    whisper.load_model(model_size, download_root=str(model_path))
-                    break  # Success, exit retry loop
+            # Check if model already exists
+            import os
 
-                except Exception as e:
-                    self.logger.warning(f"Attempt {attempt + 1} failed: {e}")
-                    if attempt == max_retries - 1:
-                        raise  # Re-raise on final attempt
-                    if progress_callback:
-                        progress_callback(
-                            f"Retrying download... (attempt {attempt + 2}/{max_retries})",
-                            20 + (attempt * 20),
-                        )
-                    await asyncio.sleep(2)  # Wait before retry
+            home = os.path.expanduser("~")
+            cache_dir = os.path.join(home, ".cache", "whisper")
+            os.makedirs(cache_dir, exist_ok=True)
 
-            if progress_callback:
-                progress_callback("Whisper model ready!", 100)
+            model_file = os.path.join(cache_dir, f"{model_size}.pt")
 
-            self.logger.info(f"Whisper {model_size} model ready")
-            return True
+            if os.path.exists(model_file):
+                self.logger.info(f"Whisper {model_size} model already exists")
+                if progress_callback:
+                    progress_callback("Model already downloaded!", 100)
+                return True
+
+            # Download the model manually with progress
+            if model_size in model_urls:
+                url = model_urls[model_size]
+                self.logger.info(f"Downloading Whisper {model_size} model from {url}")
+
+                if progress_callback:
+                    progress_callback(f"Downloading Whisper {model_size} model...", 5)
+
+                # Download with progress tracking
+                await self._download_file(url, Path(model_file), progress_callback)
+
+                self.logger.info(f"Whisper {model_size} model downloaded successfully")
+                return True
+            else:
+                # Fallback to whisper.load_model for other models
+                self.logger.info(f"Using whisper.load_model for {model_size}")
+                if progress_callback:
+                    progress_callback(f"Loading {model_size} model...", 50)
+
+                whisper_module.load_model(model_size)
+
+                if progress_callback:
+                    progress_callback("Whisper model ready!", 100)
+
+                return True
 
         except Exception as e:
             error_msg = f"Failed to download Whisper model: {e}"

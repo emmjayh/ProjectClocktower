@@ -221,13 +221,11 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
                 )
 
                 try:
+                    # Use real progress tracking without hardcoded limits
                     success = loop.run_until_complete(
                         self.downloader.download_whisper_model(
                             model,
-                            lambda msg, p=None, base=base_progress: progress_callback(
-                                msg,
-                                min(base + 12, base + (p or 0) * 0.12) if p else None,
-                            ),
+                            lambda msg, p=None: progress_callback(msg, p),
                         )
                     )
 
@@ -244,33 +242,28 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
                     # Continue with other models
                     continue
 
-                progress_callback(
-                    f"✅ Whisper {model} model downloaded!", base_progress + 12
-                )
+                # Don't override the final progress from the actual download
                 self.root.after(0, self.log, f"✅ Whisper {model} model downloaded!")
 
-            progress_callback("✅ All Whisper models downloaded successfully!", 80)
+            # Let the actual download progress show, don't jump to 80%
+            progress_callback("✅ All Whisper models downloaded successfully!", None)
             self.root.after(
                 0, self.log, "✅ All Whisper models downloaded successfully!"
             )
 
             # Download Piper
-            progress_callback("📥 Starting Piper voice download...", 85)
             self.root.after(0, self.log, "📥 Downloading Piper text-to-speech voice...")
 
             success = loop.run_until_complete(
                 self.downloader.download_piper_voice(
                     "en_US-lessac-medium",
-                    lambda msg, p=None: progress_callback(
-                        msg, min(95, 85 + (p or 0) * 0.1) if p else None
-                    ),
+                    lambda msg, p=None: progress_callback(msg, p),
                 )
             )
 
             if not success:
                 raise Exception("Failed to download Piper voice")
 
-            progress_callback("✅ Piper voice downloaded successfully!", 95)
             self.root.after(0, self.log, "✅ Piper voice downloaded successfully!")
 
             # Mark as complete

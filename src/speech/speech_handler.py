@@ -107,13 +107,33 @@ class ModelDownloader:
                     f"Invalid model size: {model_size}. Valid options: {valid_models}"
                 )
 
-            # Get model URL and expected size
-            model_urls = {
-                "tiny": "https://openaipublic.azureedge.net/main/whisper/models/65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9/tiny.pt",
-                "base": "https://openaipublic.azureedge.net/main/whisper/models/ed3a0b6b1c0edf879ad9b11b1af5a0e6ab5db9205f891f668f8b0e6c6326e34e/base.pt",
-                "small": "https://openaipublic.azureedge.net/main/whisper/models/9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt",
-                "medium": "https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt",
-                "large": "https://openaipublic.azureedge.net/main/whisper/models/e4b87e7e0bf463eb8e6956e646f1e277e901512310def2c24bf0e11bd3c28e9a/large.pt",
+            # Multiple fallback sources for robust downloads
+            model_sources = {
+                "tiny": [
+                    "https://openaipublic.azureedge.net/main/whisper/models/65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9/tiny.pt",
+                    "https://huggingface.co/openai/whisper-tiny/resolve/main/pytorch_model.bin",
+                    "https://github.com/openai/whisper/raw/main/whisper/assets/tiny.pt",
+                ],
+                "base": [
+                    "https://openaipublic.azureedge.net/main/whisper/models/ed3a0b6b1c0edf879ad9b11b1af5a0e6ab5db9205f891f668f8b0e6c6326e34e/base.pt",
+                    "https://huggingface.co/openai/whisper-base/resolve/main/pytorch_model.bin",
+                    "https://github.com/openai/whisper/raw/main/whisper/assets/base.pt",
+                ],
+                "small": [
+                    "https://openaipublic.azureedge.net/main/whisper/models/9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt",
+                    "https://huggingface.co/openai/whisper-small/resolve/main/pytorch_model.bin",
+                    "https://github.com/openai/whisper/raw/main/whisper/assets/small.pt",
+                ],
+                "medium": [
+                    "https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt",
+                    "https://huggingface.co/openai/whisper-medium/resolve/main/pytorch_model.bin",
+                    "https://github.com/openai/whisper/raw/main/whisper/assets/medium.pt",
+                ],
+                "large": [
+                    "https://openaipublic.azureedge.net/main/whisper/models/e4b87e7e0bf463eb8e6956e646f1e277e901512310def2c24bf0e11bd3c28e9a/large.pt",
+                    "https://huggingface.co/openai/whisper-large/resolve/main/pytorch_model.bin",
+                    "https://huggingface.co/openai/whisper-large-v3/resolve/main/pytorch_model.bin",
+                ],
             }
 
             # Check if model already exists
@@ -131,19 +151,55 @@ class ModelDownloader:
                     progress_callback("Model already downloaded!", 100)
                 return True
 
-            # Download the model manually with progress
-            if model_size in model_urls:
-                url = model_urls[model_size]
-                self.logger.info(f"Downloading Whisper {model_size} model from {url}")
+            # Download the model manually with progress from multiple sources
+            if model_size in model_sources:
+                urls = model_sources[model_size]
 
-                if progress_callback:
-                    progress_callback(f"Downloading Whisper {model_size} model...", 5)
+                for i, url in enumerate(urls):
+                    try:
+                        self.logger.info(
+                            f"Downloading Whisper {model_size} model from {url}"
+                        )
 
-                # Download with progress tracking
-                await self._download_file(url, Path(model_file), progress_callback)
+                        if progress_callback:
+                            source_name = (
+                                "Official"
+                                if i == 0
+                                else "HuggingFace" if "huggingface" in url else "GitHub"
+                            )
+                            progress_callback(
+                                f"Downloading from {source_name} ({i+1}/{len(urls)})...",
+                                5,
+                            )
 
-                self.logger.info(f"Whisper {model_size} model downloaded successfully")
-                return True
+                        # Download with progress tracking
+                        await self._download_file(
+                            url, Path(model_file), progress_callback
+                        )
+
+                        self.logger.info(
+                            f"Whisper {model_size} model downloaded successfully from {url}"
+                        )
+                        return True
+
+                    except Exception as e:
+                        self.logger.warning(f"Failed to download from {url}: {e}")
+                        if progress_callback:
+                            progress_callback(
+                                f"Source {i+1} failed, trying next...", 10 + (i * 10)
+                            )
+
+                        # If this was the last URL, re-raise the exception
+                        if i == len(urls) - 1:
+                            raise e
+
+                        # Otherwise, continue to next URL
+                        continue
+
+                # If we get here, all downloads failed
+                raise Exception(
+                    f"Failed to download {model_size} model from all sources"
+                )
             else:
                 # Fallback to whisper.load_model for other models
                 self.logger.info(f"Using whisper.load_model for {model_size}")
@@ -226,64 +282,114 @@ class ModelDownloader:
     async def _download_file(
         self, url: str, path: Path, progress_callback: callable = None
     ) -> None:
-        """Download file with progress"""
+        """Download file with progress and robust error handling"""
         try:
             # Use urllib instead of requests to avoid potential recursion issues
             import urllib.error
             import urllib.request
 
+            # Create parent directory if it doesn't exist
+            path.parent.mkdir(parents=True, exist_ok=True)
+
             req = urllib.request.Request(
                 url,
                 headers={
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                 },
             )
 
-            with urllib.request.urlopen(req, timeout=120) as response:
-                total_size = int(response.headers.get("Content-Length", 0))
-                downloaded = 0
+            # Add timeout and retry logic
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    with urllib.request.urlopen(req, timeout=300) as response:
+                        # Handle redirects
+                        if response.getcode() != 200:
+                            raise urllib.error.HTTPError(
+                                url,
+                                response.getcode(),
+                                f"HTTP {response.getcode()}",
+                                response.headers,
+                                None,
+                            )
 
-                with open(path, "wb") as f:
-                    while True:
-                        chunk = response.read(8192)
-                        if not chunk:
-                            break
+                        total_size = int(response.headers.get("Content-Length", 0))
+                        downloaded = 0
 
-                        f.write(chunk)
-                        downloaded += len(chunk)
+                        # Use temporary file to prevent partial downloads
+                        temp_path = path.with_suffix(path.suffix + ".tmp")
 
-                        if total_size > 0:
-                            progress = (downloaded / total_size) * 100
-                            if progress_callback:
-                                try:
-                                    progress_callback(
-                                        f"Downloading {path.name}: {progress:.1f}%",
-                                        progress,
-                                    )
-                                except TypeError:
-                                    progress_callback(
-                                        f"Downloading {path.name}: {progress:.1f}%"
-                                    )
-                            else:
-                                print(
-                                    f"\rDownloading {path.name}: {progress:.1f}%",
-                                    end="",
-                                    flush=True,
-                                )
-                        elif progress_callback:
-                            mb_downloaded = downloaded / (1024 * 1024)
-                            try:
-                                progress_callback(
-                                    f"Downloading {path.name}: {mb_downloaded:.1f} MB",
-                                    50,  # Fixed progress for unknown size
-                                )
-                            except TypeError:
-                                progress_callback(
-                                    f"Downloading {path.name}: {mb_downloaded:.1f} MB"
-                                )
+                        with open(temp_path, "wb") as f:
+                            while True:
+                                chunk = response.read(8192)
+                                if not chunk:
+                                    break
 
-            if not progress_callback:
-                print()  # New line after progress
+                                f.write(chunk)
+                                downloaded += len(chunk)
+
+                                if total_size > 0:
+                                    progress = (downloaded / total_size) * 100
+                                    if progress_callback:
+                                        try:
+                                            progress_callback(
+                                                f"Downloading {path.name}: {progress:.1f}%",
+                                                progress,
+                                            )
+                                        except TypeError:
+                                            progress_callback(
+                                                f"Downloading {path.name}: {progress:.1f}%"
+                                            )
+                                    else:
+                                        print(
+                                            f"\rDownloading {path.name}: {progress:.1f}%",
+                                            end="",
+                                            flush=True,
+                                        )
+                                elif progress_callback:
+                                    mb_downloaded = downloaded / (1024 * 1024)
+                                    try:
+                                        progress_callback(
+                                            f"Downloading {path.name}: {mb_downloaded:.1f} MB",
+                                            min(
+                                                95, mb_downloaded * 10
+                                            ),  # Estimate progress
+                                        )
+                                    except TypeError:
+                                        progress_callback(
+                                            f"Downloading {path.name}: {mb_downloaded:.1f} MB"
+                                        )
+
+                        # Move temp file to final location
+                        temp_path.rename(path)
+
+                        if not progress_callback:
+                            print()  # New line after progress
+
+                        # Verify file was downloaded completely
+                        if total_size > 0 and path.stat().st_size != total_size:
+                            raise Exception(
+                                f"Downloaded file size mismatch: expected {total_size}, got {path.stat().st_size}"
+                            )
+
+                        return  # Success, exit retry loop
+
+                except (urllib.error.URLError, urllib.error.HTTPError, Exception) as e:
+                    if attempt == max_retries - 1:
+                        raise  # Re-raise on final attempt
+
+                    self.logger.warning(f"Download attempt {attempt + 1} failed: {e}")
+                    if progress_callback:
+                        progress_callback(
+                            f"Retrying download ({attempt + 2}/{max_retries})...", 0
+                        )
+
+                    # Clean up temp file if it exists
+                    temp_path = path.with_suffix(path.suffix + ".tmp")
+                    if temp_path.exists():
+                        temp_path.unlink()
+
+                    await asyncio.sleep(2)  # Wait before retry
 
         except Exception as e:
             error_msg = f"Download failed for {url}: {e}"
@@ -291,6 +397,14 @@ class ModelDownloader:
                 progress_callback(f"Error: {error_msg}")
             else:
                 print(f"Error: {error_msg}")
+
+            # Clean up any partial downloads
+            if path.exists():
+                path.unlink()
+            temp_path = path.with_suffix(path.suffix + ".tmp")
+            if temp_path.exists():
+                temp_path.unlink()
+
             raise
 
     async def install_dependencies(self) -> bool:

@@ -44,7 +44,10 @@ class AIGameNarrator:
             return await self.ai_storyteller.narrate("game_start", context)
 
         # Fallback narration
-        return f"Welcome to Blood on the Clocktower. {player_count} souls gather in the town square as darkness approaches. Evil has infiltrated your peaceful community..."
+        return (
+            f"Welcome to Blood on the Clocktower. {player_count} souls gather in the town square "
+            "as darkness approaches. Evil has infiltrated your peaceful community..."
+        )
 
     async def narrate_night_phase(self, night_number: int, alive_count: int) -> str:
         """Narrate the beginning of night"""

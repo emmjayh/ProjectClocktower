@@ -8,20 +8,21 @@ print("\nChecking dependencies:")
 
 deps = [
     "numpy",
-    "torch", 
+    "torch",
     "whisper",
     "openai_whisper",
     "requests",
     "pyaudio",
     "pygame",
     "librosa",
-    "sklearn"
+    "sklearn",
 ]
 
 for dep in deps:
     try:
         if dep == "openai_whisper":
             import openai_whisper
+
             print(f"✓ {dep} - installed")
         else:
             __import__(dep)
@@ -31,6 +32,7 @@ for dep in deps:
 
 # Check if models directory exists
 from pathlib import Path
+
 models_dir = Path(__file__).parent / "models"
 print(f"\nModels directory exists: {models_dir.exists()}")
 if models_dir.exists():

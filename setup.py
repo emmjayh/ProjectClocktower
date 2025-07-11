@@ -42,22 +42,23 @@ class ProjectSetup:
             # 4. Now that dependencies are installed, import and use ModelDownloader
             logger.info("🤖 Downloading AI models...")
             from src.speech.speech_handler import ModelDownloader
+
             downloader = ModelDownloader(str(self.models_dir))
-            
+
             # Download Whisper model
             logger.info("Downloading Whisper speech recognition model...")
             await downloader.download_whisper_model("base")
-            
+
             # Download TTS voices
             logger.info("Downloading text-to-speech voices...")
             voices = ["en_US-lessac-medium", "en_US-amy-medium", "en_US-ryan-medium"]
-            
+
             for voice in voices:
                 await downloader.download_piper_voice(voice)
-            
+
             # Install Piper TTS
             await self._install_piper()
-            
+
             logger.info("✓ All models downloaded")
 
             # 5. Test installation

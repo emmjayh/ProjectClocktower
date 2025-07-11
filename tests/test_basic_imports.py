@@ -9,7 +9,6 @@ def test_core_imports():
     """Test that core modules can be imported"""
     # These should always work
     from src.core import ai_storyteller, game_state
-
     # Basic game modules
     from src.game import clocktower_api, rule_engine
 
@@ -29,9 +28,7 @@ def test_core_imports():
 def test_speech_dependencies_module():
     """Test that audio dependencies module works safely"""
     from src.speech.audio_dependencies import (
-        DEPENDENCIES,
-        check_continuous_listening_support,
-    )
+        DEPENDENCIES, check_continuous_listening_support)
 
     # Should always work regardless of available dependencies
     assert isinstance(DEPENDENCIES, dict)
@@ -45,7 +42,8 @@ def test_audio_modules_safe_import():
     """Test that audio modules can be imported safely even without dependencies"""
     # These should not fail even if audio dependencies are missing
     from src.game import live_game_monitor
-    from src.speech import continuous_listener, enhanced_tts, speaker_identification
+    from src.speech import (continuous_listener, enhanced_tts,
+                            speaker_identification)
 
     # Basic instantiation should work (even if features are disabled)
     config = continuous_listener.ListenerConfig()

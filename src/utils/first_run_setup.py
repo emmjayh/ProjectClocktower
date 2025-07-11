@@ -268,20 +268,28 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
             self.root.after(0, self.log, "✅ Piper voice downloaded successfully!")
 
             # Download DeepSeek model (optional)
-            self.root.after(0, self.log, "🤖 Downloading DeepSeek AI model (optional)...")
-            
+            self.root.after(
+                0, self.log, "🤖 Downloading DeepSeek AI model (optional)..."
+            )
+
             try:
                 success = loop.run_until_complete(
                     self.downloader.download_deepseek_model(
                         lambda msg, p=None: progress_callback(msg, p if p else 90),
                     )
                 )
-                
+
                 if success:
-                    self.root.after(0, self.log, "✅ DeepSeek AI model downloaded successfully!")
+                    self.root.after(
+                        0, self.log, "✅ DeepSeek AI model downloaded successfully!"
+                    )
                 else:
-                    self.root.after(0, self.log, "⚠️ DeepSeek download failed - AI storytelling disabled")
-                    
+                    self.root.after(
+                        0,
+                        self.log,
+                        "⚠️ DeepSeek download failed - AI storytelling disabled",
+                    )
+
             except Exception as e:
                 self.root.after(0, self.log, f"⚠️ DeepSeek download skipped: {str(e)}")
 

@@ -4,11 +4,9 @@ Provides higher quality speech synthesis options
 """
 
 import asyncio
-import io
 import logging
 import os
 import tempfile
-from pathlib import Path
 from typing import Any, Dict, Optional
 
 # Optional dependencies
@@ -131,7 +129,7 @@ class OpenAITTS:
                 try:
                     pygame.mixer.music.stop()
                     os.unlink(temp_path)
-                except:
+                except BaseException:
                     pass
 
         except Exception as e:

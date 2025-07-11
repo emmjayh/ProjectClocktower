@@ -5,16 +5,16 @@ Handles complete game flow with intelligent waiting
 
 import asyncio
 import logging
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional
 
-from ..core.game_state import GameState, Player, PlayerStatus
+from ..core.game_state import GameState, Player
 from ..speech.speech_handler import SpeechHandler
 from .character_abilities import AbilitySystem, TriggerType
 from .game_persistence import AutoSaveManager, GamePersistence
-from .game_replay import EventType, GamePlayer, GameRecorder, ReplayManager
+from .game_replay import GamePlayer, GameRecorder, ReplayManager
 from .live_game_monitor import LiveGameMonitor
 from .rule_engine import RuleEngine
 
@@ -1015,7 +1015,8 @@ class GameAutomation:
 
     async def _generate_washerwoman_info(self) -> str:
         """Generate Washerwoman information"""
-        # In real implementation, this would show two players, one with a Townsfolk character
+        # In real implementation, this would show two players, one with a
+        # Townsfolk character
         return "Between PlayerA and PlayerB, one is the Librarian."
 
     async def _generate_librarian_info(self) -> str:

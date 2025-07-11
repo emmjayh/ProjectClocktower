@@ -10,9 +10,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-
-from ..core.game_state import GameState
+from typing import Any, Dict, List, Optional
 
 
 class EventType(Enum):

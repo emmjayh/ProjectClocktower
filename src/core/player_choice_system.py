@@ -5,7 +5,7 @@ Handles capturing player decisions during night phases
 
 import asyncio
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union, Callable, Any
+from typing import Dict, List, Optional, Callable, Any
 from enum import Enum
 
 from .game_state import Player
@@ -369,7 +369,6 @@ class MockPlayerChoices:
 
 if __name__ == "__main__":
     # Test the choice system
-    import asyncio
 
     async def test_choices():
         # Create mock players

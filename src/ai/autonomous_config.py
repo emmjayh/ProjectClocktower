@@ -4,7 +4,7 @@ All settings for customizing the hands-off AI behavior
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from ..core.timing_config import PacingStyle, TimingConfig
 

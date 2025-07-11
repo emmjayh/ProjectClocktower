@@ -4,9 +4,8 @@ This replaces the old decision-making AI with a proper storyteller
 """
 
 import logging
-from typing import Dict, List, Optional
+from typing import List, Optional
 
-from ..core.game_state import GameState, Player
 from .deepseek_openai_client import DeepSeekClient
 
 

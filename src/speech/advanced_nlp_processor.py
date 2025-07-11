@@ -5,10 +5,9 @@ Handles complex speech patterns, game-specific terminology, and intent recogniti
 
 import re
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Set
+from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from enum import Enum
-from collections import defaultdict
 
 
 class Intent(Enum):

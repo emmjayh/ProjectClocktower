@@ -8,15 +8,12 @@ import json
 import logging
 import threading
 import tkinter as tk
-from dataclasses import asdict
-from pathlib import Path
 from tkinter import filedialog, messagebox, scrolledtext, ttk
-from typing import Dict, List, Optional
+from typing import List
 
 # Handle imports for both package and executable contexts
 try:
-    from ..core.ai_storyteller import AIStoryteller, GamePhase
-    from ..core.game_state import GameState, Player, PlayerStatus
+    from ..core.ai_storyteller import AIStoryteller
     from ..speech.speech_handler import SpeechConfig, SpeechHandler
 except ImportError:
     # Fallback for when running as executable or direct script
@@ -28,8 +25,7 @@ except ImportError:
     if src_path not in sys.path:
         sys.path.insert(0, src_path)
 
-    from core.ai_storyteller import AIStoryteller, GamePhase
-    from core.game_state import GameState, Player, PlayerStatus
+    from core.ai_storyteller import AIStoryteller
     from speech.speech_handler import SpeechConfig, SpeechHandler
 
 

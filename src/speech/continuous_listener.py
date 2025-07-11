@@ -20,7 +20,6 @@ from .audio_dependencies import (
     check_continuous_listening_support,
     np,
     pyaudio,
-    require_dependency,
     whisper,
 )
 
@@ -331,7 +330,7 @@ class ContinuousListener:
         self, text: str, wake_words: List[str]
     ) -> Optional[Dict[str, Any]]:
         """Parse recognized text for game commands"""
-        text_lower = text.lower()
+        text.lower()
 
         # Nomination detection
         if any(w in ["nominate", "i nominate"] for w in wake_words):

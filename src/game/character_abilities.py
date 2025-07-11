@@ -9,7 +9,7 @@ import random
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional
 
 from ..core.game_state import GameState, Player
 
@@ -62,14 +62,12 @@ class CharacterAbility(ABC):
     @abstractmethod
     def get_triggers(self) -> List[TriggerType]:
         """Get when this ability triggers"""
-        pass
 
     @abstractmethod
     async def execute(
         self, player: Player, game_state: GameState, targets: List[str] = None, **kwargs
     ) -> AbilityExecution:
         """Execute the ability"""
-        pass
 
     def is_poisoned(self, player: Player) -> bool:
         """Check if player is poisoned (ability has no effect)"""
@@ -319,7 +317,10 @@ class WasherwomanAbility(CharacterAbility):
 
         other_player = random.choice(other_players)
 
-        return f"Between {target_townsfolk.name} and {other_player.name}, one is the {target_townsfolk.character}."
+        return f"Between {
+            target_townsfolk.name} and {
+            other_player.name}, one is the {
+            target_townsfolk.character}."
 
     def _generate_false_info(self, game_state: GameState) -> str:
         """Generate false information when poisoned/drunk"""
@@ -330,7 +331,9 @@ class WasherwomanAbility(CharacterAbility):
         )
 
         if len(players) == 2:
-            return f"Between {players[0].name} and {players[1].name}, one is the {fake_character}."
+            return f"Between {
+                players[0].name} and {
+                players[1].name}, one is the {fake_character}."
         else:
             return f"{players[0].name} is the {fake_character}."
 
@@ -476,7 +479,7 @@ class ButlerAbility(CharacterAbility):
         if not hasattr(player, "butler_master"):
             return True
 
-        master_name = player.butler_master
+        player.butler_master
         # Implementation would check if master voted for the same target
         # For now, return True (no restriction)
         return True

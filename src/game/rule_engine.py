@@ -7,7 +7,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from ..core.game_state import (
     GamePhase,
@@ -21,8 +21,6 @@ from ..core.game_state import (
 
 class RuleViolation(Exception):
     """Exception raised when a game rule is violated"""
-
-    pass
 
 
 class ActionType(Enum):
@@ -235,7 +233,7 @@ class RuleEngine:
 
         # Get alive players
         alive_players = game_state.get_alive_players()
-        alive_count = len(alive_players)
+        len(alive_players)
 
         # Check good team victory conditions
         good_wins, good_reason = self._check_good_victory_conditions(
@@ -505,7 +503,7 @@ class RuleEngine:
     def _has_acted_this_night(self, player: Player, game_state: GameState) -> bool:
         """Check if player has already acted this night"""
 
-        current_night = game_state.night_number
+        game_state.night_number
 
         for action in game_state.night_actions:
             if (

@@ -4,18 +4,15 @@ Watches online games and provides AI storytelling insights
 """
 
 import asyncio
-import json
 import logging
 import threading
 import tkinter as tk
 from datetime import datetime
 from tkinter import messagebox, scrolledtext, ttk
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
-import requests
-import websockets
 
-from ..core.game_state import GamePhase, GameState, Player, PlayerStatus, Team
+from ..core.game_state import GamePhase, GameState, Player, PlayerStatus
 from ..game.clocktower_api import ClockTowerAPI
 from ..speech.speech_handler import SpeechConfig, SpeechHandler
 
@@ -697,7 +694,7 @@ class ObserverWindow:
         for i, player_data in enumerate(data.get("players", [])):
             player = Player(
                 id=str(i),
-                name=player_data.get("name", f"Player {i+1}"),
+                name=player_data.get("name", f"Player {i + 1}"),
                 seat_position=i,
                 character=player_data.get("character"),
                 status=(
@@ -775,7 +772,7 @@ class ObserverWindow:
 def main():
     """Main function for observer app"""
     root = tk.Tk()
-    app = ObserverWindow(root)
+    ObserverWindow(root)
 
     # Handle window closing
     root.protocol("WM_DELETE_WINDOW", root.destroy)

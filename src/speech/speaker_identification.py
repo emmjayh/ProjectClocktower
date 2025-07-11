@@ -5,9 +5,7 @@ Identifies who is speaking for accurate nomination tracking
 
 import asyncio
 import logging
-import os
 import pickle
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -161,8 +159,8 @@ class SpeakerIdentifier:
                 )
 
             self.logger.info(
-                f"Added voice sample for {name} (total samples: {self.speaker_profiles[name].sample_count})"
-            )
+                f"Added voice sample for {name} (total samples: {
+                    self.speaker_profiles[name].sample_count})")
 
             # Retrain if we have multiple speakers
             if len(self.speaker_profiles) > 1:
@@ -398,7 +396,7 @@ async def test_speaker_identification():
     for i in range(3):
         fake_audio = np.random.randn(16000).astype(np.float32)  # 1 second of fake audio
         result = system.process_audio(fake_audio)
-        print(f"Training sample {i+1}: {result}")
+        print(f"Training sample {i + 1}: {result}")
 
     system.exit_training_mode()
 

@@ -3,9 +3,8 @@ Integration layer for AI narrator - handles both local DeepSeek and fallback nar
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Optional
 
-from ..core.game_state import GameState
 from .local_deepseek_storyteller import LocalDeepSeekStoryteller
 
 
@@ -73,7 +72,8 @@ class AIGameNarrator:
         if not deaths:
             return "The sun rises on a miraculous morning - everyone has survived the night!"
         elif len(deaths) == 1:
-            return f"As dawn breaks, the town discovers {deaths[0]} has met a terrible fate."
+            return f"As dawn breaks, the town discovers {
+                deaths[0]} has met a terrible fate."
         else:
             return f"Dawn reveals a night of horror. {', '.join(deaths[:-1])} and {deaths[-1]} have died."
 

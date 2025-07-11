@@ -10,8 +10,6 @@ from typing import Any, Dict, Optional
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from ..core.game_state import GameState
-
 
 class LocalDeepSeekStoryteller:
     """Local DeepSeek-R1 model for AI storytelling"""
@@ -118,7 +116,10 @@ The user wants me to act as a Storyteller for Blood on the Clocktower. I should 
         base_instruction = "You are the Storyteller for Blood on the Clocktower. Provide a brief (2-3 sentences), atmospheric narration for the following:"
 
         if event_type == "game_start":
-            return f"{base_instruction}\n\nA new game is starting with {context.get('players', 'several')} players. Create an opening that sets a mysterious, gothic atmosphere."
+            return f"{base_instruction}\n\nA new game is starting with {
+                context.get(
+                    'players',
+                    'several')} players. Create an opening that sets a mysterious, gothic atmosphere."
 
         elif event_type == "night_phase":
             night = context.get("night", 1)
@@ -127,7 +128,8 @@ The user wants me to act as a Storyteller for Blood on the Clocktower. I should 
         elif event_type == "death_announcement":
             deaths = context.get("deaths", [])
             if deaths:
-                return f"{base_instruction}\n\nAnnounce that {', '.join(deaths)} died in the night. Be dramatic but respectful."
+                return f"{base_instruction}\n\nAnnounce that {
+                    ', '.join(deaths)} died in the night. Be dramatic but respectful."
             else:
                 return f"{base_instruction}\n\nAnnounce that nobody died last night. Build suspicion."
 
@@ -136,14 +138,19 @@ The user wants me to act as a Storyteller for Blood on the Clocktower. I should 
             return f"{base_instruction}\n\n{player} is being executed by the town. Narrate this dramatic moment."
 
         elif event_type == "nomination":
-            return f"{base_instruction}\n\n{context.get('nominator')} nominates {context.get('nominee')}. Build tension."
+            return f"{base_instruction}\n\n{
+                context.get('nominator')} nominates {
+                context.get('nominee')}. Build tension."
 
         elif event_type == "victory":
             team = context.get("team", "winning")
             return f"{base_instruction}\n\nThe {team} team has won! Create an epic victory announcement."
 
         elif event_type == "rule_question":
-            return f"A player asks: {context.get('question', 'How does this work?')}\n\nProvide a clear, helpful answer about Blood on the Clocktower rules."
+            return f"A player asks: {
+                context.get(
+                    'question',
+                    'How does this work?')}\n\nProvide a clear, helpful answer about Blood on the Clocktower rules."
 
         else:
             return f"{base_instruction}\n\n{event_type}"

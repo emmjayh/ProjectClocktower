@@ -4,10 +4,9 @@ Handles the full storyteller role with minimal human intervention
 """
 
 import asyncio
-import json
 import logging
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -91,7 +90,11 @@ Script: {game_state.script_name}
         context += "\n=== INFORMATION GIVEN ===\n"
 
         for info in self.information_history[-10:]:  # Last 10 pieces of info
-            context += f"Night {info.night_number}: {info.player_name} ({info.character}) learned: {info.information}"
+            context += f"Night {
+                info.night_number}: {
+                info.player_name} ({
+                info.character}) learned: {
+                info.information}"
             context += f" [{'TRUE' if info.was_true else 'FALSE'}]\n"
 
         context += "\n=== RECENT PLAYER ACTIONS ===\n"
@@ -120,10 +123,18 @@ class SpeechParser:
                 r"(?i)i choose ([A-Za-z]+) and ([A-Za-z]+)",
                 r"(?i)i pick ([A-Za-z]+) and ([A-Za-z]+)",
             ],
-            "empath": [r"(?i)empath.*neighbors", r"(?i)how many.*evil.*neighbors"],
-            "washerwoman": [r"(?i)washerwoman.*townsfolk", r"(?i)which.*townsfolk"],
-            "nomination": [r"(?i)i nominate ([A-Za-z]+)", r"(?i)nominate ([A-Za-z]+)"],
-            "vote": [r"(?i)i vote (yes|no|aye)", r"(?i)(yes|no|aye)"],
+            "empath": [
+                r"(?i)empath.*neighbors",
+                r"(?i)how many.*evil.*neighbors"],
+            "washerwoman": [
+                r"(?i)washerwoman.*townsfolk",
+                r"(?i)which.*townsfolk"],
+            "nomination": [
+                r"(?i)i nominate ([A-Za-z]+)",
+                r"(?i)nominate ([A-Za-z]+)"],
+            "vote": [
+                r"(?i)i vote (yes|no|aye)",
+                r"(?i)(yes|no|aye)"],
             "question": [
                 r"(?i)storyteller.*\?",
                 r"(?i)how does.*work",

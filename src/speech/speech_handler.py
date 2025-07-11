@@ -167,7 +167,7 @@ class ModelDownloader:
                                 else "HuggingFace" if "huggingface" in url else "GitHub"
                             )
                             progress_callback(
-                                f"Downloading from {source_name} ({i+1}/{len(urls)})...",
+                                f"Downloading from {source_name} ({i + 1}/{len(urls)})...",
                                 5,
                             )
 
@@ -177,15 +177,14 @@ class ModelDownloader:
                         )
 
                         self.logger.info(
-                            f"Whisper {model_size} model downloaded successfully from {url}"
-                        )
+                            f"Whisper {model_size} model downloaded successfully from {url}")
                         return True
 
                     except Exception as e:
                         self.logger.warning(f"Failed to download from {url}: {e}")
                         if progress_callback:
                             progress_callback(
-                                f"Source {i+1} failed, trying next...", 10 + (i * 10)
+                                f"Source {i + 1} failed, trying next...", 10 + (i * 10)
                             )
 
                         # If this was the last URL, re-raise the exception
@@ -343,16 +342,21 @@ class ModelDownloader:
                                     if progress_callback:
                                         try:
                                             progress_callback(
-                                                f"Downloading {path.name}: {progress:.1f}%",
+                                                f"Downloading {
+                                                    path.name}: {
+                                                    progress:.1f}%",
                                                 progress,
                                             )
                                         except TypeError:
                                             progress_callback(
-                                                f"Downloading {path.name}: {progress:.1f}%"
-                                            )
+                                                f"Downloading {
+                                                    path.name}: {
+                                                    progress:.1f}%")
                                     else:
                                         print(
-                                            f"\rDownloading {path.name}: {progress:.1f}%",
+                                            f"\rDownloading {
+                                                path.name}: {
+                                                progress:.1f}%",
                                             end="",
                                             flush=True,
                                         )
@@ -360,15 +364,18 @@ class ModelDownloader:
                                     mb_downloaded = downloaded / (1024 * 1024)
                                     try:
                                         progress_callback(
-                                            f"Downloading {path.name}: {mb_downloaded:.1f} MB",
+                                            f"Downloading {
+                                                path.name}: {
+                                                mb_downloaded:.1f} MB",
                                             min(
                                                 95, mb_downloaded * 10
                                             ),  # Estimate progress
                                         )
                                     except TypeError:
                                         progress_callback(
-                                            f"Downloading {path.name}: {mb_downloaded:.1f} MB"
-                                        )
+                                            f"Downloading {
+                                                path.name}: {
+                                                mb_downloaded:.1f} MB")
 
                         # Move temp file to final location
                         temp_path.rename(path)
@@ -379,8 +386,8 @@ class ModelDownloader:
                         # Verify file was downloaded completely
                         if total_size > 0 and path.stat().st_size != total_size:
                             raise Exception(
-                                f"Downloaded file size mismatch: expected {total_size}, got {path.stat().st_size}"
-                            )
+                                f"Downloaded file size mismatch: expected {total_size}, got {
+                                    path.stat().st_size}")
 
                         return  # Success, exit retry loop
 
@@ -427,7 +434,7 @@ class ModelDownloader:
 
             # Check if transformers is available
             try:
-                import transformers
+                pass
             except ImportError:
                 error_msg = "Transformers library not available - install with: pip install transformers"
                 self.logger.error(error_msg)
@@ -528,7 +535,7 @@ class ModelDownloader:
     def _check_pyaudio_installed(self) -> bool:
         """Check if PyAudio is available"""
         try:
-            import pyaudio
+            pass
 
             return True
         except ImportError:

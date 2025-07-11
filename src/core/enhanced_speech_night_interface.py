@@ -5,15 +5,13 @@ Provides sophisticated voice interaction for character abilities during night ph
 
 import asyncio
 import logging
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime
+from typing import List, Optional, Tuple
 
 from .speech_integrated_controller import (
     SpeechIntegratedController,
-    SpeechPlayerChoices,
 )
-from .mvp_character_abilities import AbilityDispatcher, AbilityResult
-from .player_choice_system import MVPChoiceTemplates, ChoiceResult
+from .mvp_character_abilities import AbilityDispatcher
+from .player_choice_system import MVPChoiceTemplates
 from .game_state import Player, GamePhase
 from ..speech.speech_handler import SpeechHandler
 

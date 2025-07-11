@@ -4,11 +4,10 @@ Central AI system that manages game flow, narration, and rule enforcement
 """
 
 import asyncio
-import json
 import logging
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 
 class GamePhase(Enum):
@@ -434,8 +433,8 @@ class NarrativeAI:
     async def generate_opening_story(self, player_count: int, script: str) -> str:
         """Generate opening story for the game"""
         prompt = f"""
-        Generate an atmospheric opening for a Blood on the Clocktower game with {player_count} players 
-        using the {script} script. Make it dramatic and immersive, setting the scene of a town 
+        Generate an atmospheric opening for a Blood on the Clocktower game with {player_count} players
+        using the {script} script. Make it dramatic and immersive, setting the scene of a town
         plagued by evil. Keep it to 2-3 sentences.
         """
 
@@ -462,7 +461,7 @@ class NarrativeAI:
         """Generate execution story"""
         prompt = f"""
         Generate a dramatic execution scene for {player.name} in a Blood on the Clocktower game.
-        Make it atmospheric but not gruesome. Focus on the town's determination to find evil. 
+        Make it atmospheric but not gruesome. Focus on the town's determination to find evil.
         2-3 sentences.
         """
 
@@ -487,10 +486,10 @@ class NarrativeAI:
         prompt = f"""
         Answer this Blood on the Clocktower question as a knowledgeable storyteller:
         Question: {question}
-        
+
         Current game phase: {game_state.phase.value}
         Day: {game_state.day_number}
-        
+
         Be helpful but don't reveal secret information. Keep response concise.
         """
 

@@ -12,7 +12,7 @@ from tkinter import messagebox, scrolledtext, ttk
 from typing import List
 
 from ..ai.storyteller_ai import StorytellerAI
-from ..core.game_state import GamePhase, GameState, Player, PlayerStatus
+from ..core.game_state import GamePhase, Player, PlayerStatus
 from ..game.botc_app_adapter import BotCAppAdapter, BotCAppEventProcessor
 from ..game.clocktower_api import ClockTowerAPI
 from ..speech.speech_handler import SpeechConfig, SpeechHandler
@@ -653,8 +653,10 @@ class StorytellerDashboard:
             )
 
             self._log_ai_decision(
-                f"Fortune Teller ({player.name}) checked {choices[0]} & {choices[1]}: {response}"
-            )
+                f"Fortune Teller ({
+                    player.name}) checked {
+                    choices[0]} & {
+                    choices[1]}: {response}")
 
     async def _handle_empath(self, player: Player):
         """Handle Empath ability"""
@@ -1030,7 +1032,7 @@ class StorytellerDashboard:
 def main():
     """Main function"""
     root = tk.Tk()
-    app = StorytellerDashboard(root)
+    StorytellerDashboard(root)
 
     # Handle window closing
     root.protocol("WM_DELETE_WINDOW", root.destroy)

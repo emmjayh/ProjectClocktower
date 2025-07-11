@@ -9,7 +9,7 @@ import sqlite3
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 
 class GamePhase(Enum):
@@ -407,8 +407,8 @@ class GameStateManager:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.execute(
                     """
-                    SELECT game_id, created_at, updated_at 
-                    FROM games 
+                    SELECT game_id, created_at, updated_at
+                    FROM games
                     ORDER BY updated_at DESC
                 """
                 )

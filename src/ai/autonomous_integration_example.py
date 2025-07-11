@@ -9,9 +9,8 @@ from typing import List
 
 from ..core.game_state import GamePhase, GameState, Player, PlayerStatus
 from ..speech.speech_handler import SpeechConfig, SpeechHandler
-from .autonomous_storyteller import AutonomousStoryteller, GameContext, SpeechParser
+from .autonomous_storyteller import AutonomousStoryteller
 from .character_handlers import CharacterAbilityHandler
-from .local_deepseek_storyteller import LocalDeepSeekStoryteller
 
 
 class FullyAutonomousGame:
@@ -278,7 +277,10 @@ PLAYERS:
         # Add information history
         summary += "\nINFORMATION GIVEN:\n"
         for info in self.autonomous_storyteller.game_context.information_history:
-            summary += f"  Night {info.night_number}: {info.player_name} learned: {info.information}\n"
+            summary += f"  Night {
+                info.night_number}: {
+                info.player_name} learned: {
+                info.information}\n"
 
         return summary
 

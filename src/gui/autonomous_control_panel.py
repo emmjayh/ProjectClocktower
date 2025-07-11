@@ -8,17 +8,14 @@ import threading
 import tkinter as tk
 from datetime import datetime
 from tkinter import messagebox, scrolledtext, ttk
-from typing import Any, Dict, Optional
+from typing import Optional
 
 from ..ai.autonomous_config import (
     PRESET_CONFIGS,
     AutonomousConfig,
     get_config_description,
 )
-from ..ai.autonomous_storyteller import AutonomousStoryteller, GameContext
-from ..ai.character_handlers import CharacterAbilityHandler
-from ..core.game_state import GamePhase, GameState, Player
-from ..core.timing_config import PacingStyle, TimingManager
+from ..ai.autonomous_storyteller import AutonomousStoryteller
 from ..speech.speech_handler import SpeechConfig, SpeechHandler
 
 

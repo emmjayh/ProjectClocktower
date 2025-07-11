@@ -4,9 +4,7 @@ Integrates all speech systems for a complete voice-controlled game experience
 """
 
 import asyncio
-import logging
-from typing import Dict, List, Optional, Tuple, Any
-from datetime import datetime
+from typing import Dict, List, Optional, Tuple
 
 from .enhanced_speech_night_interface import FullySpeechIntegratedController
 from ..speech.enhanced_storyteller_tts import DramaticStoryteller
@@ -15,7 +13,7 @@ from ..speech.voice_player_identification import (
     VoicePlayerIdentifier,
     SecureVoiceActions,
 )
-from ..speech.speech_handler import SpeechHandler, SpeechConfig
+from ..speech.speech_handler import SpeechConfig
 
 
 class MasterSpeechController(FullySpeechIntegratedController):

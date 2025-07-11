@@ -7,7 +7,7 @@ import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from ..core.game_state import GameState
 from ..game.rule_engine import RuleEngine
@@ -327,8 +327,9 @@ class LiveGameMonitor:
         self.active_votes = []
 
         self.logger.info(
-            f"🗳️ Started voting on: {nomination.nominator} nominates {nomination.nominee}"
-        )
+            f"🗳️ Started voting on: {
+                nomination.nominator} nominates {
+                nomination.nominee}")
         return True
 
     def end_voting(self) -> Dict[str, Any]:

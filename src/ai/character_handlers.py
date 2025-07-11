@@ -5,7 +5,7 @@ Handles all character abilities and information decisions
 
 import random
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import List
 
 from ..core.game_state import GameState, Player
 from .autonomous_storyteller import GameContext, InformationGiven
@@ -116,9 +116,12 @@ Respond with just: YES or NO
             player_name=player.name,
             character="Fortune Teller",
             info_type="fortune_teller",
-            information=f"Asked about {targets[0]} and {targets[1]}: {result}",
+            information=f"Asked about {
+                targets[0]} and {
+                targets[1]}: {result}",
             was_true=was_truthful,
-            context=f"Actual: {'demon present' if actual_demon_present else 'no demon'}",
+            context=f"Actual: {
+                'demon present' if actual_demon_present else 'no demon'}",
             timestamp=datetime.now(),
             night_number=game_state.day_number,
         )
@@ -183,7 +186,9 @@ Respond with just a number: 0, 1, or 2
             info_type="empath",
             information=f"Evil neighbors: {result}",
             was_true=was_truthful,
-            context=f"Actual: {actual_evil_count}, Neighbors: {left_neighbor.name}, {right_neighbor.name}",
+            context=f"Actual: {actual_evil_count}, Neighbors: {
+                left_neighbor.name}, {
+                right_neighbor.name}",
             timestamp=datetime.now(),
             night_number=game_state.day_number,
         )
@@ -214,7 +219,7 @@ AVAILABLE TOWNSFOLK:
 
 As Storyteller, choose:
 1. Which townsfolk to show (pick one from the list above)
-2. Which other player to pair them with  
+2. Which other player to pair them with
 3. What townsfolk character to claim one of them is
 
 Example response: "Alice is the Chef, or Bob is the Chef"
@@ -234,7 +239,11 @@ Generate the Washerwoman information:
             ]
             other_player = random.choice(other_players)
 
-            result = f"{chosen_townsfolk.name} is the {chosen_townsfolk.character}, or {other_player.name} is the {chosen_townsfolk.character}"
+            result = f"{
+                chosen_townsfolk.name} is the {
+                chosen_townsfolk.character}, or {
+                other_player.name} is the {
+                chosen_townsfolk.character}"
 
         except Exception:
             # Fallback
@@ -243,7 +252,11 @@ Generate the Washerwoman information:
                 p for p in game_state.players if p.name != chosen_townsfolk.name
             ]
             other_player = random.choice(other_players)
-            result = f"{chosen_townsfolk.name} is the {chosen_townsfolk.character}, or {other_player.name} is the {chosen_townsfolk.character}"
+            result = f"{
+                chosen_townsfolk.name} is the {
+                chosen_townsfolk.character}, or {
+                other_player.name} is the {
+                chosen_townsfolk.character}"
 
         # Record information
         info = InformationGiven(

@@ -3,6 +3,7 @@ Audio Dependencies Checker
 Checks for optional audio processing dependencies and provides fallbacks
 """
 
+import os
 import logging
 from typing import Dict
 
@@ -20,7 +21,6 @@ DEPENDENCIES = {
 }
 
 # Check each dependency - skip in test environment
-import os
 
 is_testing = any(
     x in os.environ.get("PYTEST_CURRENT_TEST", "") for x in ["test_", "pytest"]

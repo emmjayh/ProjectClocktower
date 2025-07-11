@@ -3,6 +3,8 @@ Blood on the Clocktower Speech-Integrated AI Storyteller - Main Entry Point
 Complete voice-controlled Blood on the Clocktower with autonomous AI storytelling
 """
 
+from src.speech.speech_handler import SpeechConfig
+from src.core.master_speech_controller import MasterSpeechController
 import asyncio
 import logging
 import sys
@@ -10,9 +12,6 @@ from pathlib import Path
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.core.master_speech_controller import MasterSpeechController
-from src.speech.speech_handler import SpeechConfig
 
 
 async def main():

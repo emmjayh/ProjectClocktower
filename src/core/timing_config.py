@@ -82,11 +82,19 @@ class TimingConfig:
         """Get timing suggestion for current phase"""
 
         suggestions = {
-            "night": f"Night phase typically takes {self.night_phase_duration // 60} minutes",
-            "day_discussion": f"Allow about {self.day_discussion_time // 60} minutes for open discussion",
-            "nomination": f"Each nomination deserves {self.nomination_discussion // 60} minutes of debate",
-            "voting": f"Voting should conclude within {self.voting_countdown} seconds",
-            "execution": f"Grant the condemned {self.execution_speech_time} seconds for final words",
+            "night": f"Night phase typically takes {
+                self.night_phase_duration //
+                60} minutes",
+            "day_discussion": f"Allow about {
+                self.day_discussion_time //
+                60} minutes for open discussion",
+            "nomination": f"Each nomination deserves {
+                self.nomination_discussion //
+                60} minutes of debate",
+            "voting": f"Voting should conclude within {
+                self.voting_countdown} seconds",
+            "execution": f"Grant the condemned {
+                self.execution_speech_time} seconds for final words",
         }
 
         base_suggestion = suggestions.get(phase, "Take the time you need")
@@ -143,9 +151,15 @@ class TimingManager:
             extensions = self.extension_count.get(phase_name, 0)
 
             if extensions == 0:
-                return f"⏰ Just a gentle reminder: {phase_name} has been going for {int(elapsed // 60)} minutes. Take your time if needed!"
+                return f"⏰ Just a gentle reminder: {phase_name} has been going for {
+                    int(
+                        elapsed //
+                        60)} minutes. Take your time if needed!"
             elif extensions < 3:
-                return f"⏰ Still discussing? That's fine! You've been at it for {int(elapsed // 60)} minutes."
+                return f"⏰ Still discussing? That's fine! You've been at it for {
+                    int(
+                        elapsed //
+                        60)} minutes."
             else:
                 # After many extensions, just occasional check-ins
                 if (elapsed - expected) % (self.config.reminder_intervals * 3) < 5:
@@ -194,7 +208,7 @@ class TimingManager:
 
         return f"""Current Timing Settings ({self.config.pacing_style.value}):
 🌙 Night Phase: ~{self.config.night_phase_duration // 60} minutes
-☀️ Day Discussion: ~{self.config.day_discussion_time // 60} minutes  
+☀️ Day Discussion: ~{self.config.day_discussion_time // 60} minutes
 🗣️ Nomination Debate: ~{self.config.nomination_discussion // 60} minutes each
 🗳️ Voting Time: {self.config.voting_countdown} seconds
 ⚰️ Final Words: {self.config.execution_speech_time} seconds

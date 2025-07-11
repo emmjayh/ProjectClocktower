@@ -7,16 +7,13 @@ import asyncio
 import logging
 import re
 from typing import Dict, List, Optional, Tuple, Any
-from datetime import datetime
 
 from .mvp_game_controller import MVPGameController
 from .player_choice_system import (
     ChoiceRequest,
     ChoiceResult,
     ChoiceType,
-    MVPChoiceTemplates,
 )
-from .game_state import Player, GamePhase
 from ..speech.speech_handler import SpeechHandler, SpeechConfig
 
 
@@ -530,7 +527,7 @@ class SpeechIntegratedController(MVPGameController):
             if command:
                 vote_data = self.command_parser.parse_vote(command)
                 if vote_data:
-                    voter = vote_data["voter"]
+                    vote_data["voter"]
                     vote_value = vote_data["vote"]
 
                     # For now, accept votes without strict voter identification

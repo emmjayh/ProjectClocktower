@@ -5,15 +5,12 @@ Provides dramatic narration, character voices, and atmospheric audio for Blood o
 
 import asyncio
 import logging
-import os
 import random
-import tempfile
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import List
 from enum import Enum
 
-from .speech_handler import SpeechHandler, SpeechConfig
+from .speech_handler import SpeechHandler
 
 
 class NarrativeStyle(Enum):
@@ -165,7 +162,8 @@ class EnhancedStoryteller:
             await asyncio.sleep(2)
 
             if len(deaths) == 1:
-                death_text = f"The lifeless form of {deaths[0]} is discovered, claimed by the night's evil."
+                death_text = f"The lifeless form of {
+                    deaths[0]} is discovered, claimed by the night's evil."
             else:
                 death_list = ", ".join(deaths[:-1]) + f", and {deaths[-1]}"
                 death_text = (

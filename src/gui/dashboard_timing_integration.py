@@ -3,6 +3,17 @@ Example integration of timing controls into the Storyteller Dashboard
 Shows how to add timing features to existing dashboard
 """
 
+import asyncio
+try:
+    from ..core.game_state import GamePhase
+except ImportError:
+    # Mock for testing
+    class GamePhase:
+        SETUP = "setup"
+        FIRST_NIGHT = "first_night"
+        DAY = "day"
+        NIGHT = "night"
+
 # This would be added to storyteller_dashboard.py
 
 

@@ -3,7 +3,8 @@ Blood on the Clocktower AI Storyteller - Main Entry Point
 Launch the AI Storyteller Dashboard for managing games
 """
 
-import asyncio
+from gui.storyteller_dashboard import StorytellerDashboard
+from utils import fix_windows_encoding
 import logging
 import sys
 import tkinter as tk
@@ -14,11 +15,8 @@ from tkinter import messagebox
 sys.path.insert(0, str(Path(__file__).parent))
 
 # Fix Windows Unicode encoding issues early
-from utils import fix_windows_encoding
 
 fix_windows_encoding()
-
-from gui.storyteller_dashboard import StorytellerDashboard
 
 
 def setup_logging():
@@ -44,22 +42,24 @@ def check_dependencies():
     missing = []
 
     try:
-        import whisper
+        pass
     except ImportError:
         missing.append("openai-whisper")
 
     try:
-        import pyaudio
+        pass
     except ImportError:
         missing.append("pyaudio")
 
     try:
-        import requests
+        pass
     except ImportError:
         missing.append("requests")
 
     if missing:
-        error_msg = f"Missing dependencies: {', '.join(missing)}\n\nPlease run: pip install {' '.join(missing)}"
+        error_msg = f"Missing dependencies: {
+            ', '.join(missing)}\n\nPlease run: pip install {
+            ' '.join(missing)}"
         messagebox.showerror("Missing Dependencies", error_msg)
         return False
 

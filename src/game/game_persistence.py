@@ -7,11 +7,9 @@ import asyncio
 import gzip
 import json
 import logging
-import os
-import pickle
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from ..core.game_state import GameState, Player
 
@@ -273,8 +271,10 @@ class GamePersistence:
                     for player in save_data.game_state.players:
                         status = "ALIVE" if player.is_alive() else "DEAD"
                         f.write(
-                            f"  {player.name}: {player.character} ({player.team}) - {status}\\n"
-                        )
+                            f"  {
+                                player.name}: {
+                                player.character} ({
+                                player.team}) - {status}\\n")
                     f.write("\\n")
 
                 # Game history
@@ -283,8 +283,13 @@ class GamePersistence:
                     f.write("-" * 20 + "\\n")
                     for day_info in save_data.day_history:
                         f.write(
-                            f"  Day {day_info.get('day_number', '?')}: {day_info.get('summary', 'No summary')}\\n"
-                        )
+                            f"  Day {
+                                day_info.get(
+                                    'day_number',
+                                    '?')}: {
+                                day_info.get(
+                                    'summary',
+                                    'No summary')}\\n")
                     f.write("\\n")
 
                 # Nominations
@@ -293,8 +298,13 @@ class GamePersistence:
                     f.write("-" * 20 + "\\n")
                     for nom in save_data.nomination_history:
                         f.write(
-                            f"  {nom.get('nominator', '?')} nominated {nom.get('nominee', '?')}\\n"
-                        )
+                            f"  {
+                                nom.get(
+                                    'nominator',
+                                    '?')} nominated {
+                                nom.get(
+                                    'nominee',
+                                    '?')}\\n")
                     f.write("\\n")
 
                 # Deaths
@@ -303,8 +313,13 @@ class GamePersistence:
                     f.write("-" * 20 + "\\n")
                     for death in save_data.death_history:
                         f.write(
-                            f"  {death.get('player', '?')} died: {death.get('cause', 'unknown')}\\n"
-                        )
+                            f"  {
+                                death.get(
+                                    'player',
+                                    '?')} died: {
+                                death.get(
+                                    'cause',
+                                    'unknown')}\\n")
                     f.write("\\n")
 
                 # Ability executions
@@ -313,8 +328,16 @@ class GamePersistence:
                     f.write("-" * 20 + "\\n")
                     for exec_info in save_data.ability_executions[-20:]:  # Last 20
                         f.write(
-                            f"  {exec_info.get('character', '?')} ({exec_info.get('player_name', '?')}): {exec_info.get('result', '?')}\\n"
-                        )
+                            f"  {
+                                exec_info.get(
+                                    'character',
+                                    '?')} ({
+                                exec_info.get(
+                                    'player_name',
+                                    '?')}): {
+                                exec_info.get(
+                                    'result',
+                                    '?')}\\n")
                     f.write("\\n")
 
             self.logger.info(f"Game log exported to {log_path}")
@@ -432,9 +455,9 @@ class GamePersistence:
         return [
             {
                 "day_number": 1,
-                "summary": f"Game in progress - Phase: {game_automation.current_phase.name if game_automation.current_phase else 'Unknown'}",
-            }
-        ]
+                "summary": f"Game in progress - Phase: {
+                    game_automation.current_phase.name if game_automation.current_phase else 'Unknown'}",
+            }]
 
     def _generate_death_history(self, game_automation) -> List[Dict[str, Any]]:
         """Generate death history from current state"""
@@ -563,7 +586,7 @@ class GamePersistence:
         auto_saves.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
         # Keep only the most recent auto-saves
-        for old_save in auto_saves[self.max_auto_saves :]:
+        for old_save in auto_saves[self.max_auto_saves:]:
             try:
                 old_save.unlink()
                 self.logger.info(f"Cleaned up old auto-save: {old_save}")

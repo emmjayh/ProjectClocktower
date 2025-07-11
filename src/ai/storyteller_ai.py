@@ -650,7 +650,7 @@ class StorytellerAI:
                 analysis["ai_recommendation"] = "good_misread"
 
         # Calculate likely execution probability
-        alive_players = len(game_state.get_alive_players())
+        len(game_state.get_alive_players())
 
         # Estimate based on character and game state
         execution_probability = 0.5

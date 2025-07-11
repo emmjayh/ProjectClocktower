@@ -5,13 +5,10 @@ Handles automatic model downloads and initial configuration
 
 import asyncio
 import logging
-import os
-import sys
 import threading
 import tkinter as tk
 from pathlib import Path
 from tkinter import messagebox, ttk
-from typing import Callable, Optional
 
 from ..speech.speech_handler import ModelDownloader
 
@@ -51,7 +48,7 @@ class FirstRunSetupGUI:
 
         # Info text
         info_text = """Welcome! This is your first time running the AI Storyteller.
-        
+
 We need to download the AI models for:
 • Speech Recognition (All Whisper models) - ~4GB total
   - Tiny (39MB), Base (142MB), Small (461MB), Medium (1.5GB), Large (2.9GB)

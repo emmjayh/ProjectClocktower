@@ -9,8 +9,14 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-from ..core.game_state import (GamePhase, GameState, Nomination, Player,
-                               PlayerStatus, Team)
+from ..core.game_state import (
+    GamePhase,
+    GameState,
+    Nomination,
+    Player,
+    PlayerStatus,
+    Team,
+)
 
 
 class RuleViolation(Exception):

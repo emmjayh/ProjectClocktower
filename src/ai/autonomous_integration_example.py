@@ -9,8 +9,7 @@ from typing import List
 
 from ..core.game_state import GamePhase, GameState, Player, PlayerStatus
 from ..speech.speech_handler import SpeechConfig, SpeechHandler
-from .autonomous_storyteller import (AutonomousStoryteller, GameContext,
-                                     SpeechParser)
+from .autonomous_storyteller import AutonomousStoryteller, GameContext, SpeechParser
 from .character_handlers import CharacterAbilityHandler
 from .local_deepseek_storyteller import LocalDeepSeekStoryteller
 

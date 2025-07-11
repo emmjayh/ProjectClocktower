@@ -6,6 +6,10 @@ torch>=2.1.0
 torchaudio>=2.1.0
 numpy>=1.24.0
 
+# AI Language Model Integration
+transformers>=4.36.0  # For local DeepSeek model
+accelerate>=0.25.0  # For model loading optimization
+
 # Audio handling - pyaudio causes issues in CI, make it optional
 # pyaudio>=0.2.11  # Install manually or via setup.py
 soundfile>=0.12.1

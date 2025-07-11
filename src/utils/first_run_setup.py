@@ -56,8 +56,9 @@ We need to download the AI models for:
 • Speech Recognition (All Whisper models) - ~4GB total
   - Tiny (39MB), Base (142MB), Small (461MB), Medium (1.5GB), Large (2.9GB)
 • Text-to-Speech (Piper) - ~50MB
+• AI Storytelling (DeepSeek-R1) - ~3.5GB (optional but recommended)
 
-This is a one-time download that will take 5-15 minutes depending on your internet speed.
+This is a one-time download that will take 10-20 minutes depending on your internet speed.
 Having all models lets you choose the best balance of speed vs. accuracy for your setup."""
 
         info_label = tk.Label(self.root, text=info_text, justify=tk.LEFT)
@@ -265,6 +266,24 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
                 raise Exception("Failed to download Piper voice")
 
             self.root.after(0, self.log, "✅ Piper voice downloaded successfully!")
+
+            # Download DeepSeek model (optional)
+            self.root.after(0, self.log, "🤖 Downloading DeepSeek AI model (optional)...")
+            
+            try:
+                success = loop.run_until_complete(
+                    self.downloader.download_deepseek_model(
+                        lambda msg, p=None: progress_callback(msg, p if p else 90),
+                    )
+                )
+                
+                if success:
+                    self.root.after(0, self.log, "✅ DeepSeek AI model downloaded successfully!")
+                else:
+                    self.root.after(0, self.log, "⚠️ DeepSeek download failed - AI storytelling disabled")
+                    
+            except Exception as e:
+                self.root.after(0, self.log, f"⚠️ DeepSeek download skipped: {str(e)}")
 
             # Mark as complete
             self.mark_setup_complete()

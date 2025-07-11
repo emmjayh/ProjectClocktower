@@ -34,7 +34,7 @@ class SpeechConfig:
 
 
 class ModelDownloader:
-    """Handles automated download of Whisper and Piper models"""
+    """Handles automated download of Whisper, Piper, and DeepSeek models"""
 
     def __init__(self, models_dir: str = "models"):
         self.models_dir = Path(models_dir)
@@ -43,7 +43,7 @@ class ModelDownloader:
 
         # Model URLs and configurations
         self.whisper_models = {
-            "tiny": "39kb",
+            "tiny": "39mb",
             "base": "142mb",
             "small": "461mb",
             "medium": "1.5gb",
@@ -63,6 +63,13 @@ class ModelDownloader:
                 "url": "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/medium/en_US-ryan-medium.onnx",
                 "config_url": "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/medium/en_US-ryan-medium.onnx.json",
             },
+        }
+        
+        # DeepSeek R1 model info
+        self.deepseek_model = {
+            "name": "DeepSeek-R1-Distill-Qwen-1.5B",
+            "size": "~3.5GB",  # Approximate size for the model files
+            "repo": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         }
 
     async def download_whisper_model(
@@ -409,6 +416,84 @@ class ModelDownloader:
                 temp_path.unlink()
 
             raise
+
+    async def download_deepseek_model(self, progress_callback: callable = None) -> bool:
+        """Download DeepSeek R1 model for AI storytelling"""
+        try:
+            if progress_callback:
+                progress_callback("Checking DeepSeek model...", 0)
+                
+            self.logger.info("Checking DeepSeek-R1-Distill-Qwen-1.5B model...")
+            
+            # Check if transformers is available
+            try:
+                import transformers
+            except ImportError:
+                error_msg = "Transformers library not available - install with: pip install transformers"
+                self.logger.error(error_msg)
+                if progress_callback:
+                    progress_callback(f"Error: {error_msg}")
+                return False
+            
+            # DeepSeek uses HuggingFace model hub
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+            
+            cache_dir = Path.home() / ".cache" / "deepseek" / "qwen-1.5b"
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            
+            if progress_callback:
+                progress_callback("Downloading DeepSeek tokenizer...", 10)
+            
+            # Download tokenizer
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(
+                    self.deepseek_model["repo"],
+                    cache_dir=cache_dir,
+                    trust_remote_code=True
+                )
+                self.logger.info("DeepSeek tokenizer downloaded successfully")
+            except Exception as e:
+                self.logger.error(f"Failed to download tokenizer: {e}")
+                if progress_callback:
+                    progress_callback(f"Error downloading tokenizer: {e}")
+                return False
+            
+            if progress_callback:
+                progress_callback("Downloading DeepSeek model (this may take a while)...", 30)
+            
+            # Download model - this will use HuggingFace's progress system
+            try:
+                model = AutoModelForCausalLM.from_pretrained(
+                    self.deepseek_model["repo"],
+                    cache_dir=cache_dir,
+                    trust_remote_code=True,
+                    torch_dtype="auto"
+                )
+                self.logger.info("DeepSeek model downloaded successfully")
+                
+                # Clean up the loaded model from memory
+                del model
+                import torch
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                    
+            except Exception as e:
+                self.logger.error(f"Failed to download model: {e}")
+                if progress_callback:
+                    progress_callback(f"Error downloading model: {e}")
+                return False
+            
+            if progress_callback:
+                progress_callback("DeepSeek model ready!", 100)
+                
+            return True
+            
+        except Exception as e:
+            error_msg = f"Failed to download DeepSeek model: {e}"
+            self.logger.error(error_msg)
+            if progress_callback:
+                progress_callback(f"Error: {error_msg}")
+            return False
 
     async def install_dependencies(self) -> bool:
         """Install required system dependencies"""

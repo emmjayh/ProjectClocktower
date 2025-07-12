@@ -270,9 +270,7 @@ class GamePersistence:
                     f.write("-" * 20 + "\\n")
                     for player in save_data.game_state.players:
                         status = "ALIVE" if player.is_alive() else "DEAD"
-                        f.write(
-                            f"  {player.name}: {player.character} ({status})\\n"
-                        )
+                        f.write(f"  {player.name}: {player.character} ({status})\\n")
                     f.write("\\n")
 
                 # Game history
@@ -434,8 +432,9 @@ class GamePersistence:
                 "summary": (
                     f"Game in progress - Phase: game_automation.current_phase.name if "
                     f"game_automation.current_phase else 'Unknown'REMAINING: ,"
-                )
-            }]
+                ),
+            }
+        ]
 
     def _generate_death_history(self, game_automation) -> List[Dict[str, Any]]:
         """Generate death history from current state"""
@@ -564,7 +563,7 @@ class GamePersistence:
         auto_saves.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
         # Keep only the most recent auto-saves
-        for old_save in auto_saves[self.max_auto_saves:]:
+        for old_save in auto_saves[self.max_auto_saves :]:
             try:
                 old_save.unlink()
                 self.logger.info(f"Cleaned up old auto-save: {old_save}")

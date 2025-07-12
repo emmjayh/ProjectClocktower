@@ -35,9 +35,8 @@ class MockDeepSeekStoryteller:
             "game_start": f"Welcome to this tale of {context.get('players', 'unknown')} brave souls.",
             "night_phase": f"Night {context.get('night', 1)} falls upon the town.",
             "death_announcement": self._mock_death_announcement(
-                context.get(
-                    "deaths",
-                    [])),
+                context.get("deaths", [])
+            ),
             "execution": f"{context.get('player', 'someone')} faces the town's judgment.",
             "nomination": (
                 f"Tension fills the air as {context.get('nominator', 'someone')} points at "
@@ -47,10 +46,7 @@ class MockDeepSeekStoryteller:
                 f"The {context.get('team', 'winning')} team emerges victorious! "
                 f"{context.get('reason', '')}"
             ),
-            "rule_question": self._mock_rule_answer(
-                context.get(
-                    "question",
-                    "")),
+            "rule_question": self._mock_rule_answer(context.get("question", "")),
         }
 
         response = mock_responses.get(event_type, f"Mock response for {event_type}")

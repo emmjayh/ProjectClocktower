@@ -160,7 +160,8 @@ class SpeakerIdentifier:
 
             self.logger.info(
                 f"Added voice sample for {name} (total samples: "
-                f"{self.speaker_profiles[name].sample_count})")
+                f"{self.speaker_profiles[name].sample_count})"
+            )
 
             # Retrain if we have multiple speakers
             if len(self.speaker_profiles) > 1:

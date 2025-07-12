@@ -7,13 +7,20 @@ try:
     import tkinter as tk
     from tkinter import ttk
     from .autonomous_control_panel import AutonomousControlPanel
+
     GUI_AVAILABLE = True
 except ImportError:
     # Mock objects for systems without GUI
     class MockTk:
-        def __init__(self, *args, **kwargs): pass
-        def pack(self, *args, **kwargs): pass
-        def add(self, *args, **kwargs): pass
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def pack(self, *args, **kwargs):
+            pass
+
+        def add(self, *args, **kwargs):
+            pass
+
     tk = MockTk()
     ttk = MockTk()
     AutonomousControlPanel = MockTk

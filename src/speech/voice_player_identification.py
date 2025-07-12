@@ -150,11 +150,11 @@ class VoiceFeatureExtractor:
         pitch_values = []
 
         for i in range(0, len(audio) - window_size, hop_size):
-            window = audio[i: i + window_size]
+            window = audio[i : i + window_size]
 
             # Autocorrelation
             autocorr = np.correlate(window, window, mode="full")
-            autocorr = autocorr[len(autocorr) // 2:]
+            autocorr = autocorr[len(autocorr) // 2 :]
 
             # Find peak (simplified)
             min_period = int(sample_rate / 400)  # 400 Hz max

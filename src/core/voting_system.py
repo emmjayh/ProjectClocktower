@@ -357,4 +357,5 @@ if __name__ == "__main__":
     execute, yes, no = simple.get_result()
     print(
         f"Simple vote result: {yes} yes, {no} no → "
-        f"{'Execute' if execute else 'No execution'}")
+        f"{'Execute' if execute else 'No execution'}"
+    )

@@ -177,7 +177,8 @@ class ModelDownloader:
                         )
 
                         self.logger.info(
-                            f"Whisper {model_size} model downloaded successfully from {url}")
+                            f"Whisper {model_size} model downloaded successfully from {url}"
+                        )
                         return True
 
                     except Exception as e:

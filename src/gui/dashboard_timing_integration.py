@@ -4,6 +4,7 @@ Shows how to add timing features to existing dashboard
 """
 
 import asyncio
+
 try:
     from ..core.game_state import GamePhase
 except ImportError:
@@ -13,6 +14,7 @@ except ImportError:
         FIRST_NIGHT = "first_night"
         DAY = "day"
         NIGHT = "night"
+
 
 # This would be added to storyteller_dashboard.py
 

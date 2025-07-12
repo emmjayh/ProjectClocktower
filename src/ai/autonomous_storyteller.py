@@ -122,18 +122,10 @@ class SpeechParser:
                 r"(?i)i choose ([A-Za-z]+) and ([A-Za-z]+)",
                 r"(?i)i pick ([A-Za-z]+) and ([A-Za-z]+)",
             ],
-            "empath": [
-                r"(?i)empath.*neighbors",
-                r"(?i)how many.*evil.*neighbors"],
-            "washerwoman": [
-                r"(?i)washerwoman.*townsfolk",
-                r"(?i)which.*townsfolk"],
-            "nomination": [
-                r"(?i)i nominate ([A-Za-z]+)",
-                r"(?i)nominate ([A-Za-z]+)"],
-            "vote": [
-                r"(?i)i vote (yes|no|aye)",
-                r"(?i)(yes|no|aye)"],
+            "empath": [r"(?i)empath.*neighbors", r"(?i)how many.*evil.*neighbors"],
+            "washerwoman": [r"(?i)washerwoman.*townsfolk", r"(?i)which.*townsfolk"],
+            "nomination": [r"(?i)i nominate ([A-Za-z]+)", r"(?i)nominate ([A-Za-z]+)"],
+            "vote": [r"(?i)i vote (yes|no|aye)", r"(?i)(yes|no|aye)"],
             "question": [
                 r"(?i)storyteller.*\?",
                 r"(?i)how does.*work",

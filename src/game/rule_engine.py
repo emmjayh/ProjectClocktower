@@ -590,16 +590,37 @@ class CharacterAbilityValidator:
                 "learns": "minion_or_type",
                 "targets": 2,
             },
-            "Che(
-                f": "night_ability": True,"first_night_only": True,"learns": "
-                f""evil_neighbors","targets": 0,},"Empath": {"night_ability": True,"ongoing": "
-                f"True,"learns": "evil_neighbors","targets": 0,},"Fortune Teller": "
-                f"{"night_ability": True,"ongoing": True,"learns": "demon_detection","targets": "
-                f"2,"can_target_self": True,},"Butler": {"voting_restriction": "
-                f"True,"nomination_restriction": True,"master_dependent": True,},"Monk": "
-                f"{"night_ability": True,"ongoing": True,"protects": True,"targets": "
-                f"1,"cannot_target_self": True,},"
-            )
+            "Chef": {
+                "night_ability": True,
+                "first_night_only": True,
+                "learns": "evil_neighbors",
+                "targets": 0,
+            },
+            "Empath": {
+                "night_ability": True,
+                "ongoing": True,
+                "learns": "evil_neighbors",
+                "targets": 0,
+            },
+            "Fortune Teller": {
+                "night_ability": True,
+                "ongoing": True,
+                "learns": "demon_detection",
+                "targets": 2,
+                "can_target_self": True,
+            },
+            "Butler": {
+                "voting_restriction": True,
+                "nomination_restriction": True,
+                "master_dependent": True,
+            },
+            "Monk": {
+                "night_ability": True,
+                "ongoing": True,
+                "protects": True,
+                "targets": 1,
+                "cannot_target_self": True,
+            },
             "Mayor": {"passive": True, "win_condition": "no_execution_3_alive"},
         }
 

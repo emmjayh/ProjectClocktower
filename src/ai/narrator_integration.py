@@ -75,7 +75,7 @@ class AIGameNarrator:
         if not deaths:
             return "The sun rises on a miraculous morning - everyone has survived the night!"
         elif len(deaths) == 1:
-# BROKEN:             return f"As dawn breaks, the town discovers {
+            return f"As dawn breaks, the town discovers {deaths[0]} cold and lifeless."
         else:
             return f"Dawn reveals a night of horror. {', '.join(deaths[:-1])} and {deaths[-1]} have died."
 

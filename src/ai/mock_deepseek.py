@@ -32,21 +32,21 @@ class MockDeepSeekStoryteller:
         await asyncio.sleep(0.5)
 
         mock_responses = {
-            "game_start": f"Welcome to this tale of context.get('players',"
-            "night_phase": f"Night context.get('night',"
+            "game_start": f"Welcome to this tale of {context.get('players', 'unknown')} brave souls.",
+            "night_phase": f"Night {context.get('night', 1)} falls upon the town.",
             "death_announcement": self._mock_death_announcement(
                 context.get(
                     "deaths",
                     [])),
-            "execution": f"context.get('player',"
+            "execution": f"{context.get('player', 'someone')} faces the town's judgment.",
             "nomination": (
-                f"Tension fills the air as context.get('nominator','someone')} points at "
-                f"{context.get('nominee',"
-            )
+                f"Tension fills the air as {context.get('nominator', 'someone')} points at "
+                f"{context.get('nominee', 'their target')}."
+            ),
             "victory": (
-                f"The context.get('team','winning')} team emerges victorious! "
-                f"{context.get('reason','')REMAINING: ,"
-            )
+                f"The {context.get('team', 'winning')} team emerges victorious! "
+                f"{context.get('reason', '')}"
+            ),
             "rule_question": self._mock_rule_answer(
                 context.get(
                     "question",

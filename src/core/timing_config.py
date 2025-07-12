@@ -82,11 +82,11 @@ class TimingConfig:
         """Get timing suggestion for current phase"""
 
         suggestions = {
-            "night": f"Night phase typically takes self.night_phase_duration //"
-            "day_discussion": f"Allow about self.day_discussion_time //"
-            "nomination": f"Each nomination deserves self.nomination_discussion //"
-# BROKEN:             "voting": f"Voting should conclude within {
-# BROKEN:             "execution": f"Grant the condemned {
+            "night": f"Night phase typically takes {self.night_phase_duration} minutes",
+            "day_discussion": f"Allow about {self.day_discussion_time} minutes for discussion",
+            "nomination": f"Each nomination deserves {self.nomination_discussion} seconds",
+            "voting": f"Voting should conclude within {self.voting_countdown} seconds",
+            "execution": f"Grant the condemned {self.execution_speech_time} seconds for final words",
         }
 
         base_suggestion = suggestions.get(phase, "Take the time you need")

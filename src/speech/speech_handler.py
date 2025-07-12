@@ -342,15 +342,15 @@ class ModelDownloader:
                                     if progress_callback:
                                         try:
                                             progress_callback(
-                                                f"Downloading path.name}: {"
-                                                progress,
+                                                f"Downloading {path.name}: {progress:.1f}%"
                                             )
                                         except TypeError:
                                             progress_callback(
-                                                f"Downloading path.name}: {"
+                                                f"Downloading {path.name}: {progress:.1f}%"
+                                            )
                                     else:
                                         print(
-                                            f"\rDownloading path.name}: {"
+                                            f"\rDownloading {path.name}: {progress:.1f}%",
                                             end="",
                                             flush=True,
                                         )
@@ -358,14 +358,12 @@ class ModelDownloader:
                                     mb_downloaded = downloaded / (1024 * 1024)
                                     try:
                                         progress_callback(
-                                            f"Downloading path.name}: {"
-                                            min(
-                                                95, mb_downloaded * 10
-                                            ),  # Estimate progress
+                                            f"Downloading {path.name}: {min(95, mb_downloaded * 10):.1f}%"  # Estimate progress
                                         )
                                     except TypeError:
                                         progress_callback(
-                                            f"Downloading path.name}: {"
+                                            f"Downloading {path.name}: {min(95, mb_downloaded * 10):.1f}%"
+                                        )
 
                         # Move temp file to final location
                         temp_path.rename(path)
@@ -376,10 +374,8 @@ class ModelDownloader:
                         # Verify file was downloaded completely
                         if total_size > 0 and path.stat().st_size != total_size:
                             raise Exception(
-                                (
-                                    f"Downloaded file size mismatch: expected {total_size}, got "
-                                    f"path.stat().st_sizeREMAINING: )"
-                                )
+                                f"Downloaded file size mismatch: expected {total_size}, got {path.stat().st_size}"
+                            )
 
                         return  # Success, exit retry loop
 

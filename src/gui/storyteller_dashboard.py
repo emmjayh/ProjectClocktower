@@ -653,7 +653,8 @@ class StorytellerDashboard:
             )
 
             self._log_ai_decision(
-                f"Fortune Teller (player.name}) checked {choices[0]} & {choices[1]}: {responseREMAINING: )"
+                f"Fortune Teller ({player.name}) checked {choices[0]} & {choices[1]}: {response}"
+            )
 
     async def _handle_empath(self, player: Player):
         """Handle Empath ability"""

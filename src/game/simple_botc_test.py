@@ -211,8 +211,7 @@ def run_simple_tests():
         print(f"{status_icon} {test_name}: {result}")
 
     compatibility_score = (passed / total) * 100
-    print(
-# BROKEN:         f"\n🎯 Compatibility Score: {
+    print(f"\n🎯 Compatibility Score: {compatibility_score:.1f}%")
 
     if compatibility_score >= 80:
         print("✅ Excellent compatibility - botc.app integration ready!")

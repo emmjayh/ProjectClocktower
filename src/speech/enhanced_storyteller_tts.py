@@ -162,7 +162,7 @@ class EnhancedStoryteller:
             await asyncio.sleep(2)
 
             if len(deaths) == 1:
-# BROKEN:                 death_text = f"The lifeless form of {
+                death_text = f"The lifeless form of {deaths[0]} is found, cold and still."
             else:
                 death_list = ", ".join(deaths[:-1]) + f", and {deaths[-1]}"
                 death_text = (

@@ -90,11 +90,10 @@ Script: {game_state.script_name}
         context += "\n=== INFORMATION GIVEN ===\n"
 
         for info in self.information_history[-10:]:  # Last 10 pieces of info
-            context += f"Night {
-                info.night_number}: {
-                info.player_name} ({
-                info.character}) learned: {
-                info.information}"
+            context += (
+                f"Night {info.night_number}: {info.player_name} "
+                f"({info.character}) learned: {info.information}"
+            )
             context += f" [{'TRUE' if info.was_true else 'FALSE'}]\n"
 
         context += "\n=== RECENT PLAYER ACTIONS ===\n"

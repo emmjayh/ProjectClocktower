@@ -129,9 +129,10 @@ class MVPCharacterAbilities:
         # Determine what information to give (drunk/poisoned affects this)
         told_character = self._get_washerwoman_info(player, chosen_townsfolk.character)
 
-        info_text = f"You learn: One of {
-            chosen_townsfolk.name} or {
-            other_player.name} is the {told_character}"
+        info_text = (
+            f"You learn: One of {chosen_townsfolk.name} or "
+            f"{other_player.name} is the {told_character}"
+        )
 
         return AbilityResult(
             character="Washerwoman",
@@ -309,8 +310,7 @@ class MVPCharacterAbilities:
         # Kill the original Imp
         imp_player.kill()
 
-        info_text = f"You kill yourself. {
-            new_imp.name if minions else 'No one'} becomes the Imp"
+        info_text = f"You kill yourself. {new_imp.name if minions else 'No one'} becomes the Imp"
 
         return AbilityResult(
             character="Imp",

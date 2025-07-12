@@ -277,10 +277,10 @@ PLAYERS:
         # Add information history
         summary += "\nINFORMATION GIVEN:\n"
         for info in self.autonomous_storyteller.game_context.information_history:
-            summary += f"  Night {
-                info.night_number}: {
-                info.player_name} learned: {
-                info.information}\n"
+            summary += (
+                f"  Night {info.night_number}: {info.player_name} "
+                f"learned: {info.information}\n"
+            )
 
         return summary
 

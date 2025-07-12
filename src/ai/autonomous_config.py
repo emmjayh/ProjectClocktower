@@ -214,10 +214,22 @@ def get_config_description(config_name: str) -> str:
     """Get description of a preset configuration"""
 
     descriptions = {
-        "quick": "Fast-paced games with direct information and minimal delays. Good for experienced players.",
-        "dramatic": "Story-focused games with atmospheric narration and dramatic reveals. Great for immersion.",
-        "tournament": "Competitive games with strict timing and minimal storyteller bias. Fair and balanced.",
-        "casual": "Relaxed social games with flexible timing and moderate drama. Perfect for friends.",
+        "quick": (
+            "Fast-paced games with direct information and minimal delays. "
+            "Good for experienced players."
+        ),
+        "dramatic": (
+            "Story-focused games with atmospheric narration and dramatic reveals. "
+            "Great for immersion."
+        ),
+        "tournament": (
+            "Competitive games with strict timing and minimal storyteller bias. "
+            "Fair and balanced."
+        ),
+        "casual": (
+            "Relaxed social games with flexible timing and moderate drama. "
+            "Perfect for friends."
+        ),
         "standard": "Balanced settings suitable for most games. Good default choice.",
     }
 

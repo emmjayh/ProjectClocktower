@@ -147,8 +147,10 @@ class FullyAutonomousGame:
         # Announce setup
         await asyncio.sleep(3)
         await self.autonomous_storyteller._speak(
-            "I am your AI Storyteller. I will listen for your actions and guide the game. "
-            "Speak clearly when making choices."
+            (
+                "I am your AI Storyteller. I will listen for your actions and guide "
+                "the game. Speak clearly when making choices."
+            )
         )
 
     async def run_example_game_flow(self):

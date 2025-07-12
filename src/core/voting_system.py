@@ -4,8 +4,8 @@ Handles nominations, voting, and execution logic
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
 from enum import Enum
+from typing import Dict, List, Optional, Set, Tuple
 
 from .game_state import Player
 

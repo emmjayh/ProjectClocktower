@@ -6,14 +6,14 @@ Integrates all speech systems for a complete voice-controlled game experience
 import asyncio
 from typing import Dict, List, Optional, Tuple
 
-from .enhanced_speech_night_interface import FullySpeechIntegratedController
-from ..speech.enhanced_storyteller_tts import DramaticStoryteller
 from ..speech.advanced_nlp_processor import AdvancedNLPProcessor, Intent
-from ..speech.voice_player_identification import (
-    VoicePlayerIdentifier,
-    SecureVoiceActions,
-)
+from ..speech.enhanced_storyteller_tts import DramaticStoryteller
 from ..speech.speech_handler import SpeechConfig
+from ..speech.voice_player_identification import (
+    SecureVoiceActions,
+    VoicePlayerIdentifier,
+)
+from .enhanced_speech_night_interface import FullySpeechIntegratedController
 
 
 class MasterSpeechController(FullySpeechIntegratedController):

@@ -11,7 +11,6 @@ from datetime import datetime
 from tkinter import messagebox, scrolledtext, ttk
 from typing import Any, Dict, List
 
-
 from ..core.game_state import GamePhase, GameState, Player, PlayerStatus
 from ..game.clocktower_api import ClockTowerAPI
 from ..speech.speech_handler import SpeechConfig, SpeechHandler

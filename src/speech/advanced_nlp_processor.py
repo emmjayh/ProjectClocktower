@@ -3,11 +3,11 @@ Advanced Natural Language Processing for Blood on the Clocktower Commands
 Handles complex speech patterns, game-specific terminology, and intent recognition
 """
 
-import re
 import logging
-from typing import Dict, List, Optional, Tuple, Any
+import re
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class Intent(Enum):

@@ -3,8 +3,8 @@ Audio Dependencies Checker
 Checks for optional audio processing dependencies and provides fallbacks
 """
 
-import os
 import logging
+import os
 from typing import Dict
 
 logger = logging.getLogger(__name__)

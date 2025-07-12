@@ -61,8 +61,8 @@ except ImportError:
     np.linalg = MockLinalg()
     np.fft = MockFFT()
     np.ndarray = list  # For type annotations
-from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
 
 from .speech_handler import SpeechHandler
 
@@ -519,7 +519,7 @@ class SecureVoiceActions:
 if __name__ == "__main__":
     # Test voice identification
     async def test_voice_identification():
-        from .speech_handler import SpeechHandler, SpeechConfig
+        from .speech_handler import SpeechConfig, SpeechHandler
 
         speech_handler = SpeechHandler(SpeechConfig())
         await speech_handler.initialize()

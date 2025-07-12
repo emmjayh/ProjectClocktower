@@ -7,8 +7,8 @@ import asyncio
 import logging
 import random
 from dataclasses import dataclass
-from typing import List
 from enum import Enum
+from typing import List
 
 from .speech_handler import SpeechHandler
 

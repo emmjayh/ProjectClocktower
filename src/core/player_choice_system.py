@@ -5,8 +5,8 @@ Handles capturing player decisions during night phases
 
 import asyncio
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Callable, Any
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
 from .game_state import Player
 

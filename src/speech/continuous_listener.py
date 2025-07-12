@@ -16,12 +16,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 # Import dependencies through dependency checker
-from .audio_dependencies import (
-    check_continuous_listening_support,
-    np,
-    pyaudio,
-    whisper,
-)
+from .audio_dependencies import check_continuous_listening_support, np, pyaudio, whisper
 
 
 @dataclass

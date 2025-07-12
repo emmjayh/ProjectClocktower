@@ -7,13 +7,11 @@ import asyncio
 import logging
 from typing import List, Optional, Tuple
 
-from .speech_integrated_controller import (
-    SpeechIntegratedController,
-)
+from ..speech.speech_handler import SpeechHandler
+from .game_state import GamePhase, Player
 from .mvp_character_abilities import AbilityDispatcher
 from .player_choice_system import MVPChoiceTemplates
-from .game_state import Player, GamePhase
-from ..speech.speech_handler import SpeechHandler
+from .speech_integrated_controller import SpeechIntegratedController
 
 
 class EnhancedNightSpeechInterface:

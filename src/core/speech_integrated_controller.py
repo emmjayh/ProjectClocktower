@@ -6,15 +6,11 @@ Combines MVP game engine with speech recognition for real-time voice-controlled 
 import asyncio
 import logging
 import re
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
+from ..speech.speech_handler import SpeechConfig, SpeechHandler
 from .mvp_game_controller import MVPGameController
-from .player_choice_system import (
-    ChoiceRequest,
-    ChoiceResult,
-    ChoiceType,
-)
-from ..speech.speech_handler import SpeechHandler, SpeechConfig
+from .player_choice_system import ChoiceRequest, ChoiceResult, ChoiceType
 
 
 class SpeechCommandParser:

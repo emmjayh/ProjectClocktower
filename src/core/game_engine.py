@@ -7,7 +7,7 @@ import random
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
-from .game_state import GameState, Player, GamePhase, PlayerStatus
+from .game_state import GamePhase, GameState, Player, PlayerStatus
 
 
 @dataclass

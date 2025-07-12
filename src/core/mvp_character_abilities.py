@@ -4,8 +4,8 @@ Core character abilities for the 7-player Trouble Brewing MVP
 """
 
 import random
-from typing import List, Optional, Tuple
 from dataclasses import dataclass
+from typing import List, Optional, Tuple
 
 from .game_state import GameState, Player
 
@@ -434,7 +434,7 @@ class AbilityDispatcher:
 
 if __name__ == "__main__":
     # Test character abilities
-    from .game_state import GameState, GamePhase, PlayerStatus
+    from .game_state import GamePhase, GameState, PlayerStatus
 
     # Create test game state
     players = [

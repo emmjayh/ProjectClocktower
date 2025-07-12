@@ -6,6 +6,7 @@ Shows how to add the autonomous AI controls to the existing interface
 try:
     import tkinter as tk
     from tkinter import ttk
+
     from .autonomous_control_panel import AutonomousControlPanel
 
     GUI_AVAILABLE = True

@@ -3,13 +3,14 @@ Blood on the Clocktower AI Storyteller - Main Entry Point
 Launch the AI Storyteller Dashboard for managing games
 """
 
-from gui.storyteller_dashboard import StorytellerDashboard
-from utils import fix_windows_encoding
 import logging
 import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import messagebox
+
+from gui.storyteller_dashboard import StorytellerDashboard
+from utils import fix_windows_encoding
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))

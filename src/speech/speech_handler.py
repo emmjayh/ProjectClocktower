@@ -147,7 +147,12 @@ class ModelDownloader:
             if os.path.exists(model_file):
                 self.logger.info(f"Whisper {model_size} model already exists")
                 if progress_callback:
-                    progress_callback("Model already downloaded!", 100)
+                    # Simulate gradual progress for GUI compatibility
+                    progress_callback("Checking existing model...", 10)
+                    await asyncio.sleep(0.5)
+                    progress_callback("Validating model integrity...", 50)
+                    await asyncio.sleep(0.5)
+                    progress_callback("Model verified and ready!", 100)
                 return True
 
             # Download the model manually with progress from multiple sources

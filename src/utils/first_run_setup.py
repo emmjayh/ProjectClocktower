@@ -172,18 +172,26 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
             )
             self.root.after(0, self.log, "📥 Starting model downloads...")
 
-            # Create progress callback that updates the GUI
+            # Create progress callback that updates the GUI safely
             def progress_callback(message, percent=None):
-                self.root.after(0, self.log, message)
-                self.root.after(0, self.status_label.config, {"text": message})
+                try:
+                    # Safely update GUI from background thread
+                    if self.root.winfo_exists():
+                        self.root.after(0, self.log, message)
+                        self.root.after(0, self.status_label.config, {"text": message})
 
-                if percent is not None:
-                    self.root.after(0, self.progress.config, {"value": percent})
-                    self.root.after(
-                        0,
-                        self.progress_percent_label.config,
-                        {"text": f"{percent:.1f}%"},
-                    )
+                        if percent is not None:
+                            # Clamp percent to valid range
+                            percent = max(0, min(100, percent))
+                            self.root.after(0, self.progress.config, {"value": percent})
+                            self.root.after(
+                                0,
+                                self.progress_percent_label.config,
+                                {"text": f"{percent:.1f}%"},
+                            )
+                except Exception as e:
+                    # Log GUI update errors but don't crash download
+                    print(f"GUI update error: {e}")
 
             # Download all Whisper models
             loop = asyncio.new_event_loop()
@@ -219,11 +227,20 @@ Having all models lets you choose the best balance of speed vs. accuracy for you
                 )
 
                 try:
-                    # Use real progress tracking without hardcoded limits
+                    # Use real progress tracking with better error handling
+                    def model_progress_callback(msg, p=None):
+                        # Ensure progress is within model's range
+                        if p is not None:
+                            # Scale progress within this model's range
+                            model_progress = base_progress + (p * 0.15)  # Each model gets 15% of total
+                            progress_callback(msg, min(model_progress, base_progress + 15))
+                        else:
+                            progress_callback(msg, p)
+                    
                     success = loop.run_until_complete(
                         self.downloader.download_whisper_model(
                             model,
-                            lambda msg, p=None: progress_callback(msg, p),
+                            model_progress_callback,
                         )
                     )
 

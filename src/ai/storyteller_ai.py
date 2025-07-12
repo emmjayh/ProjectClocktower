@@ -71,146 +71,41 @@ class StorytellerAI:
                 "learns": "minion_or_type",
                 "targets": 2,
             },
-            "Chef": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "first_night_info",
-                "learns": "evil_pairs",
-                "targets": 0,
-            },
-            "Empath": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "ongoing_info",
-                "learns": "evil_neighbors",
-                "targets": 0,
-            },
-            "Fortune Teller": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "ongoing_info",
-                "learns": "demon_detection",
-                "targets": 2,
-            },
-            "Undertaker": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "ongoing_info",
-                "learns": "executed_character",
-                "targets": 0,
-            },
-            "Monk": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "protection",
-                "protects": "demon_kill",
-                "targets": 1,
-            },
-            "Ravenkeeper": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "death_trigger",
-                "learns": "killer_character",
-                "targets": 1,
-            },
-            "Virgin": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "nomination_trigger",
-                "effect": "nominator_executed",
-                "targets": 0,
-            },
-            "Slayer": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "one_shot_kill",
-                "targets": 1,
-                "condition": "demon_only",
-            },
-            "Soldier": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "passive_immunity",
-                "immune_to": "demon_kill",
-                "targets": 0,
-            },
-            "Mayor": {
-                "team": "good",
-                "type": "townsfolk",
-                "ability": "win_condition",
-                "condition": "no_execution_3_alive",
-                "targets": 0,
-            },
-            # OUTSIDERS
-            "Butler": {
-                "team": "good",
-                "type": "outsider",
-                "ability": "voting_restriction",
-                "restriction": "master_dependent",
-                "targets": 1,
-            },
-            "Drunk": {
-                "team": "good",
-                "type": "outsider",
-                "ability": "malfunction",
-                "effect": "thinks_townsfolk",
-                "targets": 0,
-            },
-            "Recluse": {
-                "team": "good",
-                "type": "outsider",
-                "ability": "misregister",
-                "registers_as": "evil",
-                "targets": 0,
-            },
-            "Saint": {
-                "team": "good",
-                "type": "outsider",
-                "ability": "execution_loss",
-                "effect": "good_loses_if_executed",
-                "targets": 0,
-            },
-            # MINIONS
-            "Poisoner": {
-                "team": "evil",
-                "type": "minion",
-                "ability": "poison",
-                "effect": "malfunction_target",
-                "targets": 1,
-                "ongoing": True,
-            },
-            "Spy": {
-                "team": "evil",
-                "type": "minion",
-                "ability": "misregister_and_grimoire",
-                "registers_as": "good",
-                "sees": "grimoire",
-                "targets": 0,
-            },
-            "Scarlet Woman": {
-                "team": "evil",
-                "type": "minion",
-                "ability": "demon_replacement",
-                "condition": "demon_dies_5plus_alive",
-                "targets": 0,
-            },
-            "Baron": {
-                "team": "evil",
-                "type": "minion",
-                "ability": "setup_modification",
-                "effect": "add_outsiders",
-                "targets": 0,
-            },
-            # DEMONS
-            "Imp": {
-                "team": "evil",
-                "type": "demon",
-                "ability": "kill_and_transfer",
-                "kills": 1,
-                "targets": 1,
-                "can_starpass": True,
-            },
-        }
+            "Che(
+                f": "team": "good","type": "townsfolk","ability": "first_night_info","learns": "
+                f""evil_pairs","targets": 0,},"Empath": {"team": "good","type": "
+                f""townsfolk","ability": "ongoing_info","learns": "evil_neighbors","targets": "
+                f"0,},"Fortune Teller": {"team": "good","type": "townsfolk","ability": "
+                f""ongoing_info","learns": "demon_detection","targets": 2,},"Undertaker": "
+                f"{"team": "good","type": "townsfolk","ability": "ongoing_info","learns": "
+                f""executed_character","targets": 0,},"Monk": {"team": "good","type": "
+                f""townsfolk","ability": "protection","protects": "demon_kill","targets": "
+                f"1,},"Ravenkeeper": {"team": "good","type": "townsfolk","ability": "
+                f""death_trigger","learns": "killer_character","targets": 1,},"Virgin": {"team": "
+                f""good","type": "townsfolk","ability": "nomination_trigger","effect": "
+                f""nominator_executed","targets": 0,},"Slayer": {"team": "good","type": "
+                f""townsfolk","ability": "one_shot_kill","targets": 1,"condition": "
+                f""demon_only",},"Soldier": {"team": "good","type": "townsfolk","ability": "
+                f""passive_immunity","immune_to": "demon_kill","targets": 0,},"Mayor": {"team": "
+                f""good","type": "townsfolk","ability": "win_condition","condition": "
+                f""no_execution_3_alive","targets": 0,},# OUTSIDERS"Butler": {"team": "
+                f""good","type": "outsider","ability": "voting_restriction","restriction": "
+                f""master_dependent","targets": 1,},"Drunk": {"team": "good","type": "
+                f""outsider","ability": "malfunction","effect": "thinks_townsfolk","targets": "
+                f"0,},"Recluse": {"team": "good","type": "outsider","ability": "
+                f""misregister","registers_as": "evil","targets": 0,},"Saint": {"team": "
+                f""good","type": "outsider","ability": "execution_loss","effect": "
+                f""good_loses_if_executed","targets": 0,},# MINIONS"Poisoner": {"team": "
+                f""evil","type": "minion","ability": "poison","effect": "
+                f""malfunction_target","targets": 1,"ongoing": True,},"Spy": {"team": "
+                f""evil","type": "minion","ability": "misregister_and_grimoire","registers_as": "
+                f""good","sees": "grimoire","targets": 0,},"Scarlet Woman": {"team": "
+                f""evil","type": "minion","ability": "demon_replacement","condition": "
+                f""demon_dies_5plus_alive","targets": 0,},"Baron": {"team": "evil","type": "
+                f""minion","ability": "setup_modification","effect": "add_outsiders","targets": "
+                f"0,},# DEMONS"Imp": {"team": "evil","type": "demon","ability": "
+                f""kill_and_transfer","kills": 1,"targets": 1,"can_starpass": True,},"
+            )
 
     def _load_script_data(self) -> Dict[str, Dict]:
         """Load script configurations"""

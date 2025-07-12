@@ -327,9 +327,7 @@ class LiveGameMonitor:
         self.active_votes = []
 
         self.logger.info(
-            f"🗳️ Started voting on: {
-                nomination.nominator} nominates {
-                nomination.nominee}")
+            f"🗳️ Started voting on: nomination.nominator} nominates {nomination.nomineeREMAINING: )"
         return True
 
     def end_voting(self) -> Dict[str, Any]:

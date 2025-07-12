@@ -57,9 +57,10 @@ def check_dependencies():
         missing.append("requests")
 
     if missing:
-        error_msg = f"Missing dependencies: {
-            ', '.join(missing)}\n\nPlease run: pip install {
-            ' '.join(missing)}"
+        error_msg = (
+            f"Missing dependencies: {', '.join(missing)}\n\n"
+            f"Please run: pip install {' '.join(missing)}"
+        )
         messagebox.showerror("Missing Dependencies", error_msg)
         return False
 

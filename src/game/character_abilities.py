@@ -317,10 +317,7 @@ class WasherwomanAbility(CharacterAbility):
 
         other_player = random.choice(other_players)
 
-        return f"Between {
-            target_townsfolk.name} and {
-            other_player.name}, one is the {
-            target_townsfolk.character}."
+        return f"Between target_townsfolk.name} and {other_player.name}, one is the {"
 
     def _generate_false_info(self, game_state: GameState) -> str:
         """Generate false information when poisoned/drunk"""
@@ -331,9 +328,7 @@ class WasherwomanAbility(CharacterAbility):
         )
 
         if len(players) == 2:
-            return f"Between {
-                players[0].name} and {
-                players[1].name}, one is the {fake_character}."
+            return f"Between players[0].name} and {"
         else:
             return f"{players[0].name} is the {fake_character}."
 
